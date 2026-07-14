@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { useAuth } from '../../hooks/useAuth'
 import { supabase, TABLES } from '../../services/supabase'
-import QRCode from 'qrcode.react'
+// CORREÇÃO PARA VERSÃO 4.x - Usar QRCodeCanvas
+import { QRCodeCanvas } from 'qrcode.react'
 import { Download, Copy, Check, RefreshCw, Link } from 'lucide-react'
 import styled from 'styled-components'
 import toast from 'react-hot-toast'
@@ -136,11 +137,12 @@ const InfoBox = styled.div`
 `
 
 const AdminQRCode = () => {
-  const { restaurantId, user } = useAuth()
+  const { restaurantId } = useAuth()
   const [loading, setLoading] = useState(true)
   const [qrCode, setQrCode] = useState(null)
   const [qrLink, setQrLink] = useState('')
   const [copied, setCopied] = useState(false)
+  const qrRef = useRef(null)
 
   useEffect(() => {
     if (restaurantId) {
@@ -152,12 +154,10 @@ const AdminQRCode = () => {
     try {
       setLoading(true)
       
-      // Generate QR code link
       const baseUrl = window.location.origin
       const link = `${baseUrl}/menu/${restaurantId}`
       setQrLink(link)
 
-      // Check if QR code already exists
       const { data, error } = await supabase
         .from(TABLES.QR_CODES)
         .select('*')
@@ -169,7 +169,6 @@ const AdminQRCode = () => {
       if (data) {
         setQrCode(data)
       } else {
-        // Create new QR code
         const { data: newQR, error: createError } = await supabase
           .from(TABLES.QR_CODES)
           .insert([{
@@ -230,13 +229,13 @@ const AdminQRCode = () => {
 
       <QRContainer>
         <QRCodeWrapper>
-          <QRCode
+          <QRCodeCanvas
             id="qr-code-canvas"
             value={qrLink}
             size={200}
             level="H"
             includeMargin={true}
-            renderAs="canvas"
+            ref={qrRef}
           />
         </QRCodeWrapper>
 
