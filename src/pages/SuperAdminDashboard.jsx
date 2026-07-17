@@ -173,7 +173,7 @@ const SuperAdminDashboard = () => {
   const loadStats = async () => {
     try {
       const { count: restaurantsCount } = await supabase
-        .from(TABLES.RESTAURANTES)
+        .from(TABLES.RESTAURANTS)
         .select('*', { count: 'exact', head: true })
 
       const { count: adminsCount } = await supabase
@@ -182,7 +182,7 @@ const SuperAdminDashboard = () => {
         .eq('role', 'admin')
 
       const { count: productsCount } = await supabase
-        .from(TABLES.PRODUTOS)
+        .from(TABLES.PRODUCTS)
         .select('*', { count: 'exact', head: true })
 
       setStats({
@@ -201,7 +201,7 @@ const SuperAdminDashboard = () => {
   }
 
   const menuItems = [
-    { icon: LayoutDashboard, label: 'Dashboard', path: '/superadmin/dashboard' },
+    { icon: LayoutDashboard, label: 'Dashboard', path: '/superadmindashboard' },
     { icon: Store, label: 'Restaurants', path: '/superadmin/restaurants' },
     { icon: Users, label: 'Admins', path: '/superadmin/admins' },
     { icon: BarChart3, label: 'Analytics', path: '/superadmin/analytics' },

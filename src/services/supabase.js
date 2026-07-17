@@ -1,20 +1,25 @@
-// src/services/supabase.js
 import { createClient } from '@supabase/supabase-js'
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY
 
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase credentials')
+  console.error('Missing Supabase credentials!')
+  console.log('SUPABASE_URL:', supabaseUrl)
+  console.log('SUPABASE_ANON_KEY:', supabaseAnonKey ? 'Present' : 'Missing')
 }
 
 export const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-// Database tables - All in English matching SQL
+// TABLES com nomes corretos (em INGLÊS como no banco)
 export const TABLES = {
-  RESTAURANTES: 'restaurants',
-  ADMINS: 'profiles',
-  CATEGORIAS: 'categories',
-  PRODUTOS: 'products',
+  RESTAURANTS: 'restaurants',
+  PROFILES: 'profiles',
+  CATEGORIES: 'categories',
+  PRODUCTS: 'products',
   QR_CODES: 'qr_codes'
 }
+
+// Verificar se as tabelas estão definidas
+console.log('TABLES:', TABLES)
+console.log('TABLES.PROFILES:', TABLES.PROFILES)
