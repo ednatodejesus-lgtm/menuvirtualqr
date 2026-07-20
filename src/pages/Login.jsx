@@ -1,92 +1,142 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from '../services/supabase';
+import { useAuth } from "../hooks/useAuth";
 
-export default function Login() {
-  const navigate = useNavigate();
 
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+export default function Login(){
 
-  async function handleLogin(e) {
+
+    const {
+        login,
+        profile
+    } = useAuth();
+
+
+    const navigate = useNavigate();
+
+
+
+    const [email,setEmail] = useState("");
+    const [password,setPassword] = useState("");
+    const [error,setError] = useState("");
+
+
+
+   async function handleSubmit(e){
+
     e.preventDefault();
+
     setError("");
 
-    // 1. Login no Supabase Auth
-    const { data: authData, error: authError } =
-      await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
+    try{
 
-    if (authError) {
-      setError(authError.message);
-      return;
+        const result = await login(
+            email,
+            password
+        );
+
+
+        console.log(
+            "LOGIN RESULT:",
+            result
+        );
+
+
+        if(result.profile?.role === "super_admin"){
+
+            navigate("/SuperAdminDashboard");
+
+        }
+
+
+        else if(result.profile?.role === "restaurant_admin"){
+
+            navigate("/RestaurantAdminDashboard");
+
+        }
+
+
+    }
+    catch(err){
+
+        console.error(err);
+
+        setError(
+            "Email ou senha inválidos"
+        );
+
     }
 
-
-    // 2. Buscar perfil do usuário
-    const { data: profile, error: profileError } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", authData.user.id)
-      .single();
+}
 
 
-    if (profileError) {
-      setError("Perfil não encontrado");
-      return;
-    }
+
+    return (
+
+        <div style={{
+            maxWidth:"400px",
+            margin:"50px auto"
+        }}>
 
 
-    // 3. Redirecionar pela role
-    if (profile.role === "super_admin") {
-      navigate("/SuperAdminDashboard");
-    } 
-
-    else if (profile.role === "admin") {
-      navigate("/AdminDashboard");
-    }
-
-    else {
-      setError("Usuário sem permissão");
-    }
-  }
+            <h1>
+                Menu Virtual QR
+            </h1>
 
 
-  return (
-    <div>
-      <h2>Login</h2>
-
-      <form onSubmit={handleLogin}>
-
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e)=>setEmail(e.target.value)}
-        />
-
-        <input
-          type="password"
-          placeholder="Senha"
-          value={password}
-          onChange={(e)=>setPassword(e.target.value)}
-        />
+            <h2>
+                Login
+            </h2>
 
 
-        <button type="submit">
-          Entrar
-        </button>
+            {
+                error &&
+                <p style={{
+                    color:"red"
+                }}>
+                    {error}
+                </p>
+            }
 
-      </form>
+
+            <form onSubmit={handleSubmit}>
 
 
-      {error && (
-        <p>{error}</p>
-      )}
+                <input
+                    placeholder="Email"
+                    value={email}
+                    onChange={
+                        e=>setEmail(e.target.value)
+                    }
+                />
 
-    </div>
-  );
+
+                <br/>
+
+
+                <input
+                    type="password"
+                    placeholder="Senha"
+                    value={password}
+                    onChange={
+                        e=>setPassword(e.target.value)
+                    }
+                />
+
+
+                <br/>
+
+
+                <button>
+                    Entrar
+                </button>
+
+
+            </form>
+
+
+        </div>
+
+    )
+
 }

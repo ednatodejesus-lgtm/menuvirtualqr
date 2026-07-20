@@ -1,313 +1,279 @@
-import React, { createContext, useState, useContext, useEffect } from 'react'
-import { supabase } from '../services/supabase'
-import toast from 'react-hot-toast'
-
-export const AuthContext = createContext()
+import { createContext, useEffect, useState } from "react";
+import { supabase, TABLES } from "../services/supabase";
 
 
-export const AuthProvider = ({ children }) => {
-
-  const [user, setUser] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [userRole, setUserRole] = useState(null)
-  const [restaurantId, setRestaurantId] = useState(null)
+export const AuthContext = createContext();
 
 
 
-  useEffect(() => {
-
-    const getSession = async () => {
-
-      const {
-        data:{session},
-        error
-      } = await supabase.auth.getSession()
+export function AuthProvider({children}){
 
 
-      if(error){
-        console.error(error)
-        setLoading(false)
-        return
-      }
-
-
-      if(session){
-
-        setUser(session.user)
-
-        await getUserRole(session.user.id)
-
-      }
-
-      setLoading(false)
-
-    }
-
-
-    getSession()
+    const [user,setUser] = useState(null);
+    const [profile,setProfile] = useState(null);
+    const [loading,setLoading] = useState(true);
 
 
 
-    const {
-      data:{subscription}
-    } = supabase.auth.onAuthStateChange(
-      async (_event, session)=>{
+    async function loadProfile(userId){
 
 
-        if(session){
+        console.log(
+            "BUSCANDO PROFILE:",
+            userId
+        );
 
-          setUser(session.user)
 
-          await getUserRole(session.user.id)
+        const {
+            data,
+            error
+        } = await supabase
+            .from(TABLES.PROFILES)
+            .select("*")
+            .eq("id", userId)
+            .maybeSingle();
 
-        }else{
 
-          setUser(null)
-          setUserRole(null)
-          setRestaurantId(null)
+
+        if(error){
+
+            console.error(
+                "PROFILE ERROR:",
+                error
+            );
+
+            return null;
 
         }
 
 
-        setLoading(false)
-
-      }
-    )
-
-
-    return ()=>{
-      subscription.unsubscribe()
-    }
-
-
-  },[])
-
-
-
-
-  const getUserRole = async(userId)=>{
-
-
-    const {
-      data,
-      error
-    } = await supabase
-      .from("profiles")
-      .select("*")
-      .eq("user_id", userId)
-      .maybeSingle()
-
-
-
-    console.log("PROFILE:", data)
-
-
-
-    if(error){
-
-      console.error(
-        "Erro buscando profile:",
-        error
-      )
-
-      return
-
-    }
-
-
-
-    if(data){
-
-      setUserRole(data.role)
-
-      setRestaurantId(data.restaurant_id || null)
-
-
-    }else{
-
-
-      setUserRole(null)
-      setRestaurantId(null)
-
-    }
-
-  }
-
-
-
-
-
-
-  const login = async(email,password)=>{
-
-
-    try{
-
-
-      setLoading(true)
-
-
-      const {
+        console.log(
+    "PROFILE RESPONSE:",
+    {
         data,
         error
-      } = await supabase.auth.signInWithPassword({
-
-        email,
-        password
-
-      })
+    }
+);
 
 
-
-      if(error){
-
-        toast.error(error.message)
-
-        return {
-          success:false,
-          error:error.message
-        }
-
-      }
+        setProfile(data);
 
 
-
-
-      await getUserRole(data.user.id)
-
-
-
-      toast.success("Login realizado")
-
-
-
-      return {
-
-        success:true,
-        user:data.user
-
-      }
-
-
-
-    }catch(error){
-
-
-      toast.error(error.message)
-
-
-      return {
-
-        success:false,
-        error:error.message
-
-      }
-
-
-
-    }finally{
-
-      setLoading(false)
+        return data;
 
     }
 
-  }
+
+
+
+    useEffect(()=>{
+
+
+        let mounted = true;
+
+
+
+        async function start(){
+
+
+            const {
+                data:{
+                    session
+                }
+            } = await supabase.auth.getSession();
+
+            const {
+                 data,
+                 error
+                  } = await supabase
+
+            if(session?.user && mounted){
+
+
+                setUser(session.user);
+
+
+                await loadProfile(
+                    session.user.id
+                );
+
+
+            }
+
+
+            if(mounted){
+
+                setLoading(false);
+
+            }
+
+
+        }
+
+
+
+        start();
+
+
+
+        const {
+            data:{
+                subscription
+            }
+        } = supabase.auth.onAuthStateChange(
+            async(
+                event,
+                session
+            )=>{
+
+
+                console.log(
+                    "AUTH:",
+                    event
+                );
+
+
+
+                if(!mounted)
+                    return;
+
+
+
+                if(session?.user){
+
+
+                    setUser(
+                        session.user
+                    );
+
+
+                    await loadProfile(
+                        session.user.id
+                    );
+
+
+                }
+                else{
+
+
+                    setUser(null);
+
+                    setProfile(null);
+
+
+                }
+
+
+            }
+        );
+
+
+
+        return ()=>{
+
+
+            mounted=false;
+
+            subscription.unsubscribe();
+
+
+        };
+
+
+    },[]);
 
 
 
 
 
+    async function login(
+        email,
+        password
+    ){
 
 
-  const logout = async()=>{
+        const {
+            data,
+            error
+        } = await supabase.auth.signInWithPassword({
 
+            email,
 
-    await supabase.auth.signOut()
+            password
 
-
-    setUser(null)
-    setUserRole(null)
-    setRestaurantId(null)
-
-
-    toast.success("Sessão terminada")
-
-
-  }
-
-
+        });
 
 
 
-
-  const value={
-
-
-    user,
-
-    userRole,
-
-    restaurantId,
-
-    loading,
-
-    login,
-
-    logout,
-
-
-    // permissões
-
-    isSuperAdmin:
-      ()=> userRole === "super_admin",
-
-
-    isAdmin:
-      ()=> userRole === "admin",
+        if(error)
+            throw error;
 
 
 
-    isAuthenticated:
-      ()=> !!user
+        const profileData =
+            await loadProfile(
+                data.user.id
+            );
 
 
 
-  }
+        return {
+
+            user:data.user,
+
+            profile:profileData
+
+        };
+
+
+    }
 
 
 
-  return (
 
-    <AuthContext.Provider value={value}>
+    async function logout(){
 
-      {children}
 
-    </AuthContext.Provider>
+        await supabase.auth.signOut();
 
-  )
+
+        setUser(null);
+
+        setProfile(null);
+
+
+    }
+
+
+
+
+
+    return (
+
+        <AuthContext.Provider
+
+            value={{
+
+                user,
+
+                profile,
+
+                loading,
+
+                login,
+
+                logout
+
+            }}
+
+        >
+
+            {children}
+
+
+        </AuthContext.Provider>
+
+    );
 
 
 }
-
-
-
-export const useAuth=()=>{
-
- const context=useContext(AuthContext)
-
-
- if(!context){
-
-   throw new Error(
-    "useAuth must be used inside AuthProvider"
-   )
-
- }
-
-
- return context
-
-}
-
-
-export default AuthContext

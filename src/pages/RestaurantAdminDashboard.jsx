@@ -1,7 +1,7 @@
 import { useAuth } from "../hooks/useAuth";
 
 
-export default function SuperAdminDashboard(){
+export default function RestaurantAdminDashboard(){
 
     const { profile, logout } = useAuth();
 
@@ -10,7 +10,7 @@ export default function SuperAdminDashboard(){
         <div>
 
             <h1>
-                Super Admin Dashboard
+                Restaurant Admin Dashboard
             </h1>
 
 
@@ -18,6 +18,13 @@ export default function SuperAdminDashboard(){
                 Bem vindo:
                 {" "}
                 {profile?.full_name}
+            </p>
+
+
+            <p>
+                Restaurante:
+                {" "}
+                {profile?.restaurant_id}
             </p>
 
 
