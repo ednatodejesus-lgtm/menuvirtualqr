@@ -1,39 +1,120 @@
-import { useAuth } from "../hooks/useAuth";
+import {
+    useState
+} from "react";
+
+
+import {
+    useAuth
+} from "../hooks/useAuth";
+
+
+import DashboardHeader
+from "../components/superadmin/DashboardHeader";
+
+
+import StatsCards
+from "../components/superadmin/StatsCards";
+
+
+import RestaurantCreate
+from "../components/superadmin/RestaurantCreate";
+
+
+import RestaurantList
+from "../components/superadmin/RestaurantList";
+
+
+import "../styles/superadmin.css";
+
 
 
 export default function SuperAdminDashboard(){
 
-    const { profile, logout } = useAuth();
+
+    const {
+        profile,
+        logout
+    } = useAuth();
+
+
+
+    // controla abertura e fecho do formulário
+    const [
+        showCreate,
+        setShowCreate
+    ] = useState(false);
+
+
+
 
 
     return (
-        <div>
-
-            <h1>
-                Super Admin Dashboard
-            </h1>
 
 
-            <p>
-                Bem vindo:
-                {" "}
-                {profile?.full_name}
-            </p>
+        <div className="super-dashboard">
 
 
-            <p>
-                Role:
-                {" "}
-                {profile?.role}
-            </p>
+
+            <DashboardHeader
+
+               profile={profile}
+
+                onCreateRestaurant={()=>
+                setShowCreate(true)
+                }
+
+/>
 
 
-            <button onClick={logout}>
+
+
+
+            <StatsCards/>
+
+
+
+
+
+            {
+                showCreate && (
+
+                    <RestaurantCreate
+
+                        onClose={()=>
+                            setShowCreate(false)
+                        }
+
+                    />
+
+                )
+            }
+
+
+
+
+
+            <RestaurantList/>
+
+
+
+
+
+            <button
+
+                onClick={logout}
+
+            >
+
                 Sair
+
             </button>
 
 
+
+
         </div>
+
+
     );
 
 }

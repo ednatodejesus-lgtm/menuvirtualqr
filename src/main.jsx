@@ -14,6 +14,7 @@ import {
 } from "./contexts/AuthContext";
 
 
+
 import "./index.css";
 
 
@@ -31,9 +32,11 @@ ReactDOM.createRoot(
 
             <AuthProvider>
 
+              
 
-                <App />
+                 <App />
 
+              
 
             </AuthProvider>
 

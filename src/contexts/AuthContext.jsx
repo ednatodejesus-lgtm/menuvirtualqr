@@ -4,10 +4,12 @@ import {
     useState
 } from "react";
 
+
 import {
     supabase,
     TABLES
 } from "../services/supabase";
+
 
 
 export const AuthContext = createContext();
@@ -25,7 +27,73 @@ export function AuthProvider({children}){
 
 
 
+    // evita chamadas simultâneas ao profile
+    let profileRequest = null;
+
+
+
     async function loadProfile(userId){
+
+
+        if(!userId)
+            return null;
+
+
+
+        if(profileRequest){
+
+            return profileRequest;
+
+        }
+
+
+
+        profileRequest =
+        supabase
+        .from(TABLES.PROFILES)
+        .select("*")
+        .eq("id",userId)
+        .single()
+        .then(({data,error})=>{
+
+
+            console.log(
+                "PROFILE RESPONSE:",
+                data,
+                error
+            );
+
+
+
+            if(error){
+
+                console.error(
+                    "PROFILE ERROR:",
+                    error
+                );
+
+
+                setProfile(null);
+
+                return null;
+
+            }
+
+
+
+            setProfile(data);
+
+
+            return data;
+
+
+        })
+        .finally(()=>{
+
+            profileRequest=null;
+
+        });
+
 
 
         console.log(
@@ -34,44 +102,11 @@ export function AuthProvider({children}){
         );
 
 
-        const {
-            data,
-            error
-        }
-        =
-        await supabase
-        .from(TABLES.PROFILES)
-        .select("*")
-        .eq("id",userId)
-        .single();
 
-
-
-        console.log(
-            "PROFILE RESPONSE:",
-            data,
-            error
-        );
-
-
-
-        if(error){
-
-            console.error(error);
-
-            setProfile(null);
-
-            return null;
-
-        }
-
-
-
-        setProfile(data);
-
-        return data;
+        return profileRequest;
 
     }
+
 
 
 
@@ -96,7 +131,12 @@ export function AuthProvider({children}){
 
 
 
-            if(session?.user && mounted){
+            if(!mounted)
+                return;
+
+
+
+            if(session?.user){
 
 
                 setUser(
@@ -108,21 +148,21 @@ export function AuthProvider({children}){
                     session.user.id
                 );
 
-            }
-
-
-
-            if(mounted){
-
-                setLoading(false);
 
             }
+
+
+
+            setLoading(false);
+
 
         }
 
 
 
         init();
+
+
 
 
 
@@ -133,13 +173,17 @@ export function AuthProvider({children}){
         }
         =
         supabase.auth.onAuthStateChange(
-            (event,session)=>{
+            (
+                event,
+                session
+            )=>{
 
 
                 console.log(
                     "AUTH:",
                     event
                 );
+
 
 
                 if(!mounted)
@@ -155,13 +199,11 @@ export function AuthProvider({children}){
                     );
 
 
-                    setTimeout(()=>{
 
-                        loadProfile(
-                            session.user.id
-                        );
-
-                    },0);
+                    // não bloqueia o listener
+                    loadProfile(
+                        session.user.id
+                    );
 
 
                 }
@@ -172,6 +214,7 @@ export function AuthProvider({children}){
 
                     setProfile(null);
 
+
                 }
 
 
@@ -181,13 +224,19 @@ export function AuthProvider({children}){
 
 
 
+
+
         return ()=>{
+
 
             mounted=false;
 
+
             subscription.unsubscribe();
 
+
         };
+
 
 
     },[]);
@@ -195,7 +244,13 @@ export function AuthProvider({children}){
 
 
 
-    async function login(email,password){
+
+
+
+    async function login(
+        email,
+        password
+    ){
 
 
         const {
@@ -207,6 +262,7 @@ export function AuthProvider({children}){
         .signInWithPassword({
 
             email,
+
             password
 
         });
@@ -218,22 +274,44 @@ export function AuthProvider({children}){
 
 
 
-        return data.user;
+        await loadProfile(
+            data.user.id
+        );
+
+
+
+        return {
+
+            user:data.user
+
+        };
+
 
     }
+
+
+
 
 
 
 
     async function logout(){
 
+
         await supabase.auth.signOut();
+
+
 
         setUser(null);
 
         setProfile(null);
 
+
     }
+
+
+
+
 
 
 
@@ -242,19 +320,27 @@ export function AuthProvider({children}){
         <AuthContext.Provider
 
         value={{
+
             user,
+
             profile,
+
             loading,
+
             login,
+
             logout
+
         }}
 
         >
 
             {children}
 
+
         </AuthContext.Provider>
 
     );
+
 
 }
