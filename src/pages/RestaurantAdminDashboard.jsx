@@ -3,7 +3,7 @@ import { useAuth } from "../hooks/useAuth";
 
 export default function RestaurantAdminDashboard(){
 
-    const { profile, logout } = useAuth();
+    const { profile, restaurants, logout } = useAuth();
 
 
     return (
@@ -24,7 +24,7 @@ export default function RestaurantAdminDashboard(){
             <p>
                 Restaurante:
                 {" "}
-                {profile?.restaurant_id}
+                {restaurants?.name}
             </p>
 
 

@@ -7,12 +7,8 @@ import {
 
 import Login from "./pages/Login";
 
-import SuperAdminDashboard 
-from "./pages/SuperAdminDashboard";
-
-
-import RestaurantAdminDashboard 
-from "./pages/RestaurantAdminDashboard";
+import DashboardRouter
+from "./pages/DashboardRouter";
 
 
 import ProtectedRoute 
@@ -24,66 +20,20 @@ export default function AppRoutes(){
 
 
     return (
-
         <Routes>
-
-
             <Route 
-                path="/login"
-                element={<Login />}
+                   path="/login"
+                   element={<Login />}
             />
-
-
-
             <Route
-
-                path="/super-admin"
-
+                path="/DashboardRouter"
                 element={
-
-                    <ProtectedRoute role="super_admin">
-
-                        <SuperAdminDashboard />
-
+                    <ProtectedRoute>
+                        <DashboardRouter/>
                     </ProtectedRoute>
-
                 }
-
             />
-
-
-
-            <Route
-
-                path="/restaurant-admin"
-
-                element={
-
-                    <ProtectedRoute role="restaurant_admin">
-
-                        <RestaurantAdminDashboard />
-
-                    </ProtectedRoute>
-
-                }
-
-            />
-
-
-
-            <Route
-
-                path="*"
-
-                element={
-                    <Navigate to="/login"/>
-                }
-
-            />
-
-
         </Routes>
-
     );
 
 }

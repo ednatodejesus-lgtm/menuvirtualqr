@@ -1,5 +1,13 @@
-import { createContext, useEffect, useState } from "react";
-import { supabase, TABLES } from "../services/supabase";
+import {
+    createContext,
+    useEffect,
+    useState
+} from "react";
+
+import {
+    supabase,
+    TABLES
+} from "../services/supabase";
 
 
 export const AuthContext = createContext();
@@ -10,7 +18,9 @@ export function AuthProvider({children}){
 
 
     const [user,setUser] = useState(null);
+
     const [profile,setProfile] = useState(null);
+
     const [loading,setLoading] = useState(true);
 
 
@@ -27,37 +37,37 @@ export function AuthProvider({children}){
         const {
             data,
             error
-        } = await supabase
-            .from(TABLES.PROFILES)
-            .select("*")
-            .eq("id", userId)
-            .maybeSingle();
+        }
+        =
+        await supabase
+        .from(TABLES.PROFILES)
+        .select("*")
+        .eq("id",userId)
+        .single();
+
+
+
+        console.log(
+            "PROFILE RESPONSE:",
+            data,
+            error
+        );
 
 
 
         if(error){
 
-            console.error(
-                "PROFILE ERROR:",
-                error
-            );
+            console.error(error);
+
+            setProfile(null);
 
             return null;
 
         }
 
 
-        console.log(
-    "PROFILE RESPONSE:",
-    {
-        data,
-        error
-    }
-);
-
 
         setProfile(data);
-
 
         return data;
 
@@ -69,36 +79,37 @@ export function AuthProvider({children}){
     useEffect(()=>{
 
 
-        let mounted = true;
+        let mounted=true;
 
 
 
-        async function start(){
+        async function init(){
 
 
             const {
                 data:{
                     session
                 }
-            } = await supabase.auth.getSession();
+            }
+            =
+            await supabase.auth.getSession();
 
-            const {
-                 data,
-                 error
-                  } = await supabase
+
 
             if(session?.user && mounted){
 
 
-                setUser(session.user);
+                setUser(
+                    session.user
+                );
 
 
                 await loadProfile(
                     session.user.id
                 );
 
-
             }
+
 
 
             if(mounted){
@@ -107,12 +118,11 @@ export function AuthProvider({children}){
 
             }
 
-
         }
 
 
 
-        start();
+        init();
 
 
 
@@ -120,18 +130,16 @@ export function AuthProvider({children}){
             data:{
                 subscription
             }
-        } = supabase.auth.onAuthStateChange(
-            async(
-                event,
-                session
-            )=>{
+        }
+        =
+        supabase.auth.onAuthStateChange(
+            (event,session)=>{
 
 
                 console.log(
                     "AUTH:",
                     event
                 );
-
 
 
                 if(!mounted)
@@ -147,9 +155,13 @@ export function AuthProvider({children}){
                     );
 
 
-                    await loadProfile(
-                        session.user.id
-                    );
+                    setTimeout(()=>{
+
+                        loadProfile(
+                            session.user.id
+                        );
+
+                    },0);
 
 
                 }
@@ -160,8 +172,8 @@ export function AuthProvider({children}){
 
                     setProfile(null);
 
-
                 }
+
 
 
             }
@@ -171,11 +183,9 @@ export function AuthProvider({children}){
 
         return ()=>{
 
-
             mounted=false;
 
             subscription.unsubscribe();
-
 
         };
 
@@ -185,20 +195,18 @@ export function AuthProvider({children}){
 
 
 
-
-    async function login(
-        email,
-        password
-    ){
+    async function login(email,password){
 
 
         const {
             data,
             error
-        } = await supabase.auth.signInWithPassword({
+        }
+        =
+        await supabase.auth
+        .signInWithPassword({
 
             email,
-
             password
 
         });
@@ -210,21 +218,7 @@ export function AuthProvider({children}){
 
 
 
-        const profileData =
-            await loadProfile(
-                data.user.id
-            );
-
-
-
-        return {
-
-            user:data.user,
-
-            profile:profileData
-
-        };
-
+        return data.user;
 
     }
 
@@ -233,18 +227,13 @@ export function AuthProvider({children}){
 
     async function logout(){
 
-
         await supabase.auth.signOut();
-
 
         setUser(null);
 
         setProfile(null);
 
-
     }
-
-
 
 
 
@@ -252,28 +241,20 @@ export function AuthProvider({children}){
 
         <AuthContext.Provider
 
-            value={{
-
-                user,
-
-                profile,
-
-                loading,
-
-                login,
-
-                logout
-
-            }}
+        value={{
+            user,
+            profile,
+            loading,
+            login,
+            logout
+        }}
 
         >
 
             {children}
 
-
         </AuthContext.Provider>
 
     );
-
 
 }

@@ -5,79 +5,69 @@ import { useAuth } from "../hooks/useAuth";
 
 export default function Login(){
 
-
-    const {
-        login,
-        profile
-    } = useAuth();
-
+    const { login } = useAuth();
 
     const navigate = useNavigate();
-
 
 
     const [email,setEmail] = useState("");
     const [password,setPassword] = useState("");
     const [error,setError] = useState("");
+    const [loading,setLoading] = useState(false);
 
 
 
-   async function handleSubmit(e){
+    async function handleSubmit(e){
 
-    e.preventDefault();
+        e.preventDefault();
 
-    setError("");
-
-    try{
-
-        const result = await login(
-            email,
-            password
-        );
+        setError("");
+        setLoading(true);
 
 
-        console.log(
-            "LOGIN RESULT:",
-            result
-        );
+        try{
+
+            await login(
+                email,
+                password
+            );
 
 
-        if(result.profile?.role === "super_admin"){
+            // agora o login não decide nada
+            navigate("/DashboardRouter");
 
-            navigate("/SuperAdminDashboard");
+
+        }catch(err){
+
+            console.error(
+                "LOGIN ERROR:",
+                err
+            );
+
+
+            setError(
+                "Email ou senha inválidos"
+            );
+
+        }
+        finally{
+
+            setLoading(false);
 
         }
 
-
-        else if(result.profile?.role === "restaurant_admin"){
-
-            navigate("/RestaurantAdminDashboard");
-
-        }
-
-
     }
-    catch(err){
-
-        console.error(err);
-
-        setError(
-            "Email ou senha inválidos"
-        );
-
-    }
-
-}
 
 
 
     return (
 
-        <div style={{
-            maxWidth:"400px",
-            margin:"50px auto"
-        }}>
-
+        <div
+            style={{
+                maxWidth:"400px",
+                margin:"50px auto"
+            }}
+        >
 
             <h1>
                 Menu Virtual QR
@@ -91,12 +81,11 @@ export default function Login(){
 
             {
                 error &&
-                <p style={{
-                    color:"red"
-                }}>
+                <p style={{color:"red"}}>
                     {error}
                 </p>
             }
+
 
 
             <form onSubmit={handleSubmit}>
@@ -111,7 +100,7 @@ export default function Login(){
                 />
 
 
-                <br/>
+                <br/><br/>
 
 
                 <input
@@ -124,11 +113,19 @@ export default function Login(){
                 />
 
 
-                <br/>
+                <br/><br/>
 
 
-                <button>
-                    Entrar
+                <button disabled={loading}>
+
+                    {
+                        loading
+                        ?
+                        "Entrando..."
+                        :
+                        "Entrar"
+                    }
+
                 </button>
 
 
@@ -137,6 +134,6 @@ export default function Login(){
 
         </div>
 
-    )
+    );
 
 }
