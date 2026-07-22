@@ -1,26 +1,314 @@
 import { useState } from "react";
+import {
+  ImagePlus,
+  Upload,
+  LoaderCircle,
+  Store,
+  UserRound,
+  Globe,
+  Phone,
+  Mail,
+  CheckCircle,
+  XCircle
+} from "lucide-react";
+
 import { supabase } from "../../services/supabase";
-import "./../../styles/superadmin.css";
 
-export default function RestaurantCreate({onCreated}){
-
-
-    const [open,setOpen] = useState(false);
-
-    const [loading,setLoading] = useState(false);
-
-    const [result,setResult] = useState(null);
+import "../../styles/superadmin.css";
 
 
-    const [form,setForm] = useState({
+export default function RestaurantCreate({ onCreated }) {
+
+
+  const [loading,setLoading] = useState(false);
+
+  const [message,setMessage] = useState(null);
+
+
+  const [logoFile,setLogoFile] = useState(null);
+
+  const [logoPreview,setLogoPreview] = useState(null);
+
+
+  const [form,setForm] = useState({
+
+    name:"",
+
+    contact_phone:"",
+
+    contact_email:"",
+
+    address:"",
+
+    business_type:"restaurant",
+
+    style:"modern",
+
+    description:"",
+
+    admin_name:"",
+
+    admin_email:"",
+
+    facebook:"",
+
+    instagram:"",
+
+    whatsapp:"",
+
+    website:"",
+
+    tiktok:""
+
+  });
+
+
+
+  function handleChange(e){
+
+    setForm({
+
+      ...form,
+
+      [e.target.name]:e.target.value
+
+    });
+
+  }
+
+
+
+  function handleLogo(e){
+
+    const file=e.target.files[0];
+
+    if(!file) return;
+
+
+    setLogoFile(file);
+
+    setLogoPreview(
+      URL.createObjectURL(file)
+    );
+
+  }
+
+
+
+  async function uploadLogo(){
+
+
+    if(!logoFile) return null;
+
+
+    const extension =
+      logoFile.name.split(".").pop();
+
+
+    const fileName =
+      `${Date.now()}.${extension}`;
+
+
+    const {
+
+      error
+
+    } = await supabase.storage
+
+      .from("logos")
+
+      .upload(
+        fileName,
+        logoFile
+      );
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+
+    const {
+
+      data
+
+    } = supabase.storage
+
+      .from("logos")
+
+      .getPublicUrl(fileName);
+
+
+
+    return data.publicUrl;
+
+
+  }
+
+
+
+
+  async function handleSubmit(e){
+
+    e.preventDefault();
+
+
+    setLoading(true);
+
+    setMessage(null);
+
+
+
+    try{
+
+
+      let logo_url=null;
+
+
+
+      if(logoFile){
+
+        logo_url =
+          await uploadLogo();
+
+      }
+
+
+
+      const payload={
+
+
+        name:form.name,
+
+
+        logo_url,
+
+
+        contact_phone:
+          form.contact_phone,
+
+
+        contact_email:
+          form.contact_email,
+
+
+        address:
+          form.address,
+
+
+
+        business_type:
+          form.business_type,
+
+
+
+        style:
+          form.style,
+
+
+
+        description:
+          form.description,
+
+
+
+        social_links:{
+
+
+          facebook:
+            form.facebook,
+
+
+          instagram:
+            form.instagram,
+
+
+          whatsapp:
+            form.whatsapp,
+
+
+          website:
+            form.website,
+
+
+          tiktok:
+            form.tiktok
+
+        },
+
+
+
+        admin_name:
+          form.admin_name,
+
+
+        admin_email:
+          form.admin_email
+
+
+      };
+
+
+
+      const {
+
+        data:{
+          session
+
+        }
+
+      } = await supabase.auth.getSession();
+
+
+
+      const response =
+        await supabase.functions.invoke(
+
+          "create-restaurant",
+
+          {
+
+            body:payload,
+
+            headers:{
+
+              Authorization:
+              `Bearer ${session.access_token}`
+
+            }
+
+          }
+
+        );
+
+
+
+
+      if(response.error){
+
+        throw response.error;
+
+      }
+
+
+
+      setMessage({
+
+        type:"success",
+
+        text:
+        "Restaurante criado com sucesso"
+
+      });
+
+
+
+      setForm({
 
         name:"",
-
-        business_type:"restaurant",
-
-        style:"modern",
-
-        description:"",
 
         contact_phone:"",
 
@@ -28,506 +316,416 @@ export default function RestaurantCreate({onCreated}){
 
         address:"",
 
+        business_type:"restaurant",
+
+        style:"modern",
+
+        description:"",
+
+        admin_name:"",
+
         admin_email:"",
 
-        admin_name:""
+        facebook:"",
 
-    });
+        instagram:"",
+
+        whatsapp:"",
+
+        website:"",
+
+        tiktok:""
+
+      });
 
 
 
+      setLogoPreview(null);
+
+      setLogoFile(null);
 
 
-    function handleChange(e){
 
+      if(onCreated){
 
-        setForm({
+        onCreated();
 
-            ...form,
+      }
 
-            [e.target.name]:
-            e.target.value
-
-        });
 
 
     }
 
+    catch(error){
+
+
+      console.error(error);
 
 
 
+      setMessage({
 
-    async function handleSubmit(e){
+        type:"error",
 
+        text:
+        error.message ||
+        "Erro ao criar restaurante"
 
-        e.preventDefault();
-
-
-        try{
-
-
-            setLoading(true);
-
-
-            setResult(null);
-
-
-
-            const {
-                data,
-                error
-
-            } = await supabase.functions.invoke(
-
-                "create-restaurant",
-
-                {
-                    body:form
-                }
-
-            );
-
-
-
-
-            if(error){
-
-                throw error;
-
-            }
-
-
-
-            console.log(
-                "RESTAURANTE CRIADO:",
-                data
-            );
-
-
-
-            setResult(data);
-
-
-
-            if(onCreated){
-
-                onCreated(data);
-
-            }
-
-
-
-        }
-        catch(error){
-
-
-            console.error(
-                "CREATE RESTAURANT ERROR:",
-                error
-            );
-
-
-            alert(
-                error.message
-            );
-
-
-        }
-        finally{
-
-            setLoading(false);
-
-        }
+      });
 
 
     }
 
+    finally{
 
+      setLoading(false);
 
+    }
 
 
-    return (
+  }
 
-        <section>
 
 
-            {!open && (
 
-                <button
+return (
 
-                    onClick={()=>setOpen(true)}
+<form
+className="restaurant-create"
+onSubmit={handleSubmit}
+>
 
-                    style={{
 
-                        padding:"14px 20px",
+<div className="form-section">
 
-                        border:"none",
+<h2>
+<Store size={20}/>
+Dados do Restaurante
+</h2>
 
-                        borderRadius:"10px",
 
-                        background:
-                        "var(--primary)",
 
-                        color:"#fff",
+<input
+name="name"
+placeholder="Nome do restaurante"
+value={form.name}
+onChange={handleChange}
+required
+/>
 
-                        cursor:"pointer",
 
-                        fontWeight:"700"
 
-                    }}
+<select
+name="business_type"
+value={form.business_type}
+onChange={handleChange}
+>
 
-                >
+<option value="restaurant">
+Restaurante
+</option>
 
-                    + Criar Restaurante
+<option value="bar_noturno">
+Bar Noturno
+</option>
 
-                </button>
+<option value="hotel">
+Hotel
+</option>
 
-            )}
+<option value="spa">
+Spa
+</option>
 
+</select>
 
 
 
+<select
+name="style"
+value={form.style}
+onChange={handleChange}
+>
 
+<option value="modern">
+Moderno
+</option>
 
+<option value="classic">
+Clássico
+</option>
 
-            {open && (
+<option value="luxury">
+Luxo
+</option>
 
+<option value="minimal">
+Minimalista
+</option>
 
-            <div
 
-                style={{
+</select>
 
-                    background:"var(--card)",
 
-                    padding:"30px",
 
-                    borderRadius:"16px",
+<textarea
+name="description"
+placeholder="Descrição do negócio"
+value={form.description}
+onChange={handleChange}
+/>
 
-                    marginTop:"20px",
 
-                    boxShadow:
-                    "var(--theme-shadow)"
+</div>
 
-                }}
 
-            >
 
+<div className="form-section">
 
-                <h2>
+<h2>
+<ImagePlus size={20}/>
+Logo
+</h2>
 
-                    Novo Restaurante
 
-                </h2>
+<label className="upload-box">
 
 
+{
+logoPreview ?
 
+<img
+src={logoPreview}
+className="logo-preview"
+/>
 
-                <form
+:
 
-                    onSubmit={handleSubmit}
+<>
 
-                    style={{
+<Upload size={35}/>
 
-                        display:"grid",
+<span>
+Selecionar logo
+</span>
 
-                        gap:"15px"
+</>
 
-                    }}
+}
 
-                >
 
+<input
+type="file"
+accept="image/*"
+onChange={handleLogo}
+/>
 
 
-                    <input
+</label>
 
-                        name="name"
 
-                        placeholder="Nome"
+</div>
 
-                        onChange={handleChange}
 
-                    />
 
+<div className="form-section">
 
 
-                    <select
+<h2>
+<Phone size={20}/>
+Contactos
+</h2>
 
-                        name="business_type"
 
-                        onChange={handleChange}
+<input
+name="contact_phone"
+placeholder="Telefone"
+value={form.contact_phone}
+onChange={handleChange}
+/>
 
-                    >
 
-                        <option value="restaurant">
 
-                            Restaurante
+<input
+name="contact_email"
+placeholder="Email"
+value={form.contact_email}
+onChange={handleChange}
+/>
 
-                        </option>
 
 
-                        <option value="bar_noturno">
+<input
+name="address"
+placeholder="Endereço"
+value={form.address}
+onChange={handleChange}
+/>
 
-                            Bar Noturno
 
-                        </option>
+</div>
 
 
-                        <option value="hotel">
 
-                            Hotel
+<div className="form-section">
 
-                        </option>
 
+<h2>
+<Globe size={20}/>
+Redes Sociais
+</h2>
 
-                        <option value="spa">
 
-                            Spa
+<input
+name="facebook"
+placeholder="Facebook"
+value={form.facebook}
+onChange={handleChange}
+/>
 
-                        </option>
 
 
-                    </select>
+<input
+name="instagram"
+placeholder="Instagram"
+value={form.instagram}
+onChange={handleChange}
+/>
 
 
 
+<input
+name="whatsapp"
+placeholder="WhatsApp"
+value={form.whatsapp}
+onChange={handleChange}
+/>
 
 
-                    <select
 
-                        name="style"
+<input
+name="website"
+placeholder="Website"
+value={form.website}
+onChange={handleChange}
+/>
 
-                        onChange={handleChange}
 
-                    >
 
-                        <option value="modern">
+<input
+name="tiktok"
+placeholder="TikTok"
+value={form.tiktok}
+onChange={handleChange}
+/>
 
-                            Moderno
 
-                        </option>
+</div>
 
 
-                        <option value="luxury">
 
-                            Luxo
 
-                        </option>
+<div className="form-section">
 
 
-                        <option value="traditional">
+<h2>
+<UserRound size={20}/>
+Administrador
+</h2>
 
-                            Tradicional
 
-                        </option>
 
+<input
+name="admin_name"
+placeholder="Nome do gerente"
+value={form.admin_name}
+onChange={handleChange}
+required
+/>
 
-                    </select>
 
 
+<input
+name="admin_email"
+placeholder="Email do gerente"
+value={form.admin_email}
+onChange={handleChange}
+required
+/>
 
 
+</div>
 
-                    <textarea
 
-                        name="description"
 
-                        placeholder="Descrição do conceito"
 
-                        rows="4"
+<button
+disabled={loading}
+className="primary-button"
+>
 
-                        onChange={handleChange}
 
-                    />
+{
 
+loading ?
 
+<LoaderCircle className="spin"/>
 
+:
 
+" criar restaurante"
 
-                    <input
+}
 
-                        name="admin_name"
 
-                        placeholder="Nome do administrador"
+</button>
 
-                        onChange={handleChange}
 
-                    />
 
 
+{
 
+message &&
 
+<div
+className={
+message.type==="success"
+?
+"success-message"
+:
+"error-message"
+}
+>
 
-                    <input
 
-                        name="admin_email"
+{
+message.type==="success"
 
-                        placeholder="Email administrador"
+?
 
-                        onChange={handleChange}
+<CheckCircle/>
 
-                    />
+:
 
+<XCircle/>
 
+}
 
 
+{message.text}
 
-                    <input
 
-                        name="contact_phone"
+</div>
 
-                        placeholder="Telefone"
 
-                        onChange={handleChange}
+}
 
-                    />
 
 
+</form>
 
 
+);
 
-                    <input
-
-                        name="address"
-
-                        placeholder="Morada"
-
-                        onChange={handleChange}
-
-                    />
-
-
-
-
-
-
-                    <div
-
-                    style={{
-
-                        display:"flex",
-
-                        gap:"10px"
-
-                    }}
-
-                    >
-
-
-                    <button
-
-                        disabled={loading}
-
-                        style={{
-
-                            padding:"12px",
-
-                            background:
-                            "var(--primary)",
-
-                            color:"#fff",
-
-                            border:"none",
-
-                            borderRadius:"8px"
-
-                        }}
-
-                    >
-
-                        {
-                        loading
-                        ?
-                        "Criando..."
-                        :
-                        "Criar"
-                        }
-                       criar Restaurante
-                    </button>
-
-
-
-
-
-                    <button
-
-                        type="button"
-
-                        onClick={()=>setOpen(false)}
-
-                    >
-
-                        Cancelar
-
-                    </button>
-
-
-                    </div>
-
-
-
-                </form>
-
-
-
-
-                {result && (
-
-                    <div
-
-                    style={{
-
-                        marginTop:"20px",
-
-                        padding:"15px",
-
-                        borderRadius:"10px",
-
-                        background:"#eee"
-
-                    }}
-
-                    >
-
-                        <h3>
-
-                            Restaurante criado 🎉
-
-                        </h3>
-
-
-                        <p>
-
-                        Login:
-                        {" "}
-                        {result.admin.email}
-
-                        </p>
-
-
-                        <p>
-
-                        Senha:
-                        {" "}
-                        {result.admin.password}
-
-                        </p>
-
-
-                    </div>
-
-                )}
-
-
-
-            </div>
-
-
-            )}
-
-
-
-        </section>
-
-    );
 
 }
