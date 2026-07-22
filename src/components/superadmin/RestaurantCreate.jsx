@@ -289,9 +289,22 @@ export default function RestaurantCreate({ onCreated }) {
 
       if(response.error){
 
-        throw response.error;
+         const errorBody =
+         await response.error.context.json();
 
-      }
+
+        console.error(
+          "EDGE FUNCTION ERROR:",
+          errorBody
+          );
+
+
+        throw new Error(
+        errorBody.error ||
+        "Erro na Edge Function"
+         );
+
+        }
 
 
 
