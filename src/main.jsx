@@ -16,6 +16,7 @@ import {
 
 
 import "./index.css";
+import "./styles/admin-ui.css";
 
 
 
