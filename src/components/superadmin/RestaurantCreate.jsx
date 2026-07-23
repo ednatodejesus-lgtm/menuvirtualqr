@@ -361,8 +361,7 @@ export default function RestaurantCreate({ onCreated }) {
 
       if(onCreated){
 
-        onCreated();
-
+        onCreated(response.data);
       }
 
 

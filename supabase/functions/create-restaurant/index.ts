@@ -229,20 +229,88 @@ Deno.serve(async (req: Request) => {
       .update({ owner_admin_id: newUser.user.id })
       .eq("id", restaurant.id);
 
-    // 9. Return result
+
+
+
+// 9. Create QR Code automatically
+
+const APP_URL = Deno.env.get("APP_URL") 
+  || "http://localhost:5173";
+
+
+const publicLink = `${APP_URL}/${restaurant.slug}`;
+
+
+const qrCodeValue = `MENU-${restaurant.slug}-${Date.now()}`;
+
+
+const { data: qrCode, error: qrError } = await supabaseAdmin
+  .from("qr_codes")
+  .insert({
+    restaurant_id: restaurant.id,
+    code: qrCodeValue,
+    link: publicLink,
+    tipo: "menu",
+    ativo: true
+  })
+  .select()
+  .single();
+
+
+if (qrError) {
+
+  console.error("QR ERROR:", qrError);
+
+  await supabaseAdmin
+    .from("profiles")
+    .delete()
+    .eq("id", newUser.user.id);
+
+
+  await supabaseAdmin
+    .from("restaurants")
+    .delete()
+    .eq("id", restaurant.id);
+
+
+  await supabaseAdmin.auth.admin.deleteUser(
+    newUser.user.id
+  );
+
+
+  return json(
+    {
+      error:"Error creating QR Code",
+      details: qrError.message
+    },
+    500
+  );
+
+}
+
+
+
+    // 10. Return result
     return json(
-      {
-        restaurant,
-        theme_generated: !!theme,
-        admin: {
-          id: newUser.user.id,
-          email: generatedEmail,
-          password: generatedPassword,
-          restaurant_id: restaurant.id,
-        },
-      },
-      200,
-    );
+{
+  restaurant,
+
+  qr: qrCode,
+
+  theme_generated: !!theme,
+
+  admin:{
+    id:newUser.user.id,
+    email:generatedEmail,
+    password:generatedPassword,
+    restaurant_id:restaurant.id
+  }
+
+},
+200
+);
+
+
   } catch (err) {
     return json({ error: "Unexpected error.", details: String(err) }, 500);
   }

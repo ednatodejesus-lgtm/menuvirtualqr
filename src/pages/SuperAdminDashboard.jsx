@@ -24,6 +24,8 @@ import { supabase } from "../services/supabase";
 
 import RestaurantCreate from "../components/superadmin/RestaurantCreate";
 
+import RestaurantSuccessModal from "../components/superadmin/RestaurantSuccessModal";
+
 import "../styles/superadmin.css";
 
 
@@ -39,6 +41,10 @@ const [showCreate,setShowCreate]=useState(false);
 
 const [search,setSearch]=useState("");
 
+//Modal states
+const [createdRestaurant, setCreatedRestaurant] = useState(null);
+
+const [showSuccessModal, setShowSuccessModal] = useState(false);
 
 
 async function loadRestaurants(){
@@ -315,15 +321,17 @@ showCreate &&
 
 
 <RestaurantCreate
+  onCreated={(result)=>{
 
-onCreated={()=>{
+    setCreatedRestaurant(result);
 
-setShowCreate(false);
+    setShowSuccessModal(true);
 
-loadRestaurants();
+    setShowCreate(false);
 
-}}
+    loadRestaurants();
 
+  }}
 />
 
 
@@ -788,7 +796,25 @@ restaurant.id
 </section>
 
 
+{
+showSuccessModal && (
 
+<RestaurantSuccessModal
+
+data={createdRestaurant}
+
+onClose={() => {
+
+setShowSuccessModal(false);
+
+setCreatedRestaurant(null);
+
+}}
+
+ />
+
+)
+}
 
 
 </div>
