@@ -2,9 +2,9 @@ import {useEffect,useState} from "react";
 
 import {useAuth} from "../../hooks/useAuth";
 
-import AdminCard from "./AdminCard";
-import AdminTable from "./AdminTable";
 
+import Table from "./ui/Table";
+import Card from "./ui/Card";
 
 import {
     getCategories,
@@ -198,7 +198,7 @@ export default function AdminCategories(){
 
 return (
 
-<AdminCard
+<Card
     title="Categorias"
 >
 
@@ -276,7 +276,7 @@ Carregando...
 
 :
 
-<AdminTable
+<Table
 
 columns={columns}
 
@@ -329,7 +329,7 @@ Excluir
 
 
 
-</AdminCard>
+</Card>
 
 )
 }

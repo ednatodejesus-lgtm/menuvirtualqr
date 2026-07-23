@@ -3,7 +3,7 @@ import {useEffect,useState} from "react";
 import {useAuth} from "../../hooks/useAuth";
 
 
-import AdminCard from "./AdminCard";
+import Card from "./ui/Card";
 
 import InfoBox from "./InfoBox";
 
@@ -153,7 +153,7 @@ Carregando QR Code...
 
 return (
 
-<AdminCard
+<Card
 title="QR Code do Restaurante"
 >
 
@@ -285,7 +285,7 @@ QR Code não encontrado.
 
 
 
-</AdminCard>
+</Card>
 
 )
 

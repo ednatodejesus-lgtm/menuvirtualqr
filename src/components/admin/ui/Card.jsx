@@ -1,4 +1,4 @@
-export default function AdminCard({
+export default function Card({
     title,
     children,
     actions

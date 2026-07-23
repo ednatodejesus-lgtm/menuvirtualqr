@@ -2,7 +2,8 @@ import {useEffect,useState} from "react";
 
 import {useAuth} from "../../hooks/useAuth";
 
-import AdminCard from "./AdminCard";
+import Card from "./ui/Card";
+import Table from "./ui/Table";
 
 import {
     getProducts,
@@ -307,7 +308,7 @@ loadData();
 return(
 
 
-<AdminCard
+<Card
 title="Produtos"
 >
 
@@ -592,7 +593,7 @@ Excluir
 
 
 
-</AdminCard>
+</Card>
 
 
 )

@@ -1,4 +1,4 @@
-export default function AdminTable({
+export default function Table({
     columns,
     data,
     actions
