@@ -1,5 +1,29 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+
+import {
+    Store,
+    FolderOpen,
+    Package,
+    QrCode,
+    Utensils,
+    Eye,
+    Clock,
+    CheckCircle
+} from "lucide-react";
+
+
+
 import { useAuth } from "../hooks/useAuth";
+
+
+import {
+    getDashboardStats,
+    getRecentActivities,
+    subscribeDashboardChanges
+} from "../services/restaurantDashboardService";
+
+
 
 import AdminSidebar from "../components/admin/AdminSidebar";
 import AdminHeader from "../components/admin/AdminHeader";
@@ -10,88 +34,791 @@ import AdminQRCode from "../components/admin/AdminQRCode";
 import AdminSettings from "../components/admin/AdminSettings";
 
 
+
 import "../styles/admin.css";
+
+
+
 
 
 export default function RestaurantAdminDashboard(){
 
-    const { profile, restaurants, logout } = useAuth();
 
 
-    const [activePage,setActivePage] = useState("dashboard");
+    const {
+
+        profile,
+
+        restaurants,
+
+        logout
+
+    } = useAuth();
 
 
-    const renderPage = () => {
-
-        switch(activePage){
-
-            case "categories":
-                return <AdminCategories />;
 
 
-            case "products":
-                return <AdminProducts />;
+
+    const [activePage,setActivePage] = useState(
+        "dashboard"
+    );
 
 
-            case "qrcode":
-                return <AdminQRCode />;
 
 
-            case "settings":
-                return <AdminSettings />;
+    const [stats,setStats] = useState({
+
+        categoriesCount:0,
+
+        productsCount:0,
+
+        qrCode:null
+
+    });
 
 
-            default:
-                return (
-                    <div className="admin-home">
-
-                        <h2>
-                            Dashboard
-                        </h2>
 
 
-                        <p>
-                            Bem vindo ao painel do restaurante
-                        </p>
 
-                    </div>
-                );
+    const [activities,setActivities] = useState([]);
+
+
+
+
+
+    const [loading,setLoading] = useState(true);
+
+
+
+
+
+
+
+    const restaurantId =
+        profile?.restaurant_id;
+
+
+
+
+
+
+
+
+
+    async function loadDashboard(){
+
+
+        if(!restaurantId)
+            return;
+
+
+
+
+        try{
+
+
+            setLoading(true);
+
+
+
+            const [
+
+                dashboardStats,
+
+                recentActivities
+
+
+            ] = await Promise.all([
+
+
+
+                getDashboardStats(
+                    restaurantId
+                ),
+
+
+
+                getRecentActivities(
+                    restaurantId
+                )
+
+
+            ]);
+
+
+
+
+
+            setStats(
+                dashboardStats
+            );
+
+
+
+
+            setActivities(
+                recentActivities
+            );
+
+
 
         }
+
+        catch(error){
+
+
+            console.error(
+                "Dashboard error:",
+                error
+            );
+
+
+        }
+
+        finally{
+
+
+            setLoading(false);
+
+
+        }
+
 
     }
 
 
 
+
+
+
+
+
+
+    useEffect(()=>{
+
+
+        loadDashboard();
+
+
+
+        const unsubscribe =
+
+            subscribeDashboardChanges(
+
+                restaurantId,
+
+                ()=>{
+
+                    loadDashboard();
+
+                }
+
+            );
+
+
+
+
+        return ()=>{
+
+
+            if(unsubscribe)
+
+                unsubscribe();
+
+
+        };
+
+
+
+    },[restaurantId]);
+
+
+
+
+
+
+
+
+
+
+    const renderPage = ()=>{
+
+
+
+        switch(activePage){
+
+
+
+            case "categories":
+
+                return <AdminCategories/>;
+
+
+
+            case "products":
+
+                return <AdminProducts/>;
+
+
+
+            case "qrcode":
+
+                return <AdminQRCode/>;
+
+
+
+            case "settings":
+
+                return <AdminSettings/>;
+
+
+
+
+
+
+            default:
+
+
+
+            return (
+
+
+
+            <div className="restaurant-cockpit">
+
+
+
+
+
+                <section className="cockpit-welcome">
+
+
+
+                    <div className="restaurant-title">
+
+
+                        <Store size={34}/>
+
+
+
+                        <div>
+
+
+                            <h1>
+
+                            {
+                                restaurants?.name
+                                ||
+                                "Restaurante"
+
+                            }
+
+                            </h1>
+
+
+
+                            <p>
+
+                            Restaurante ·
+
+                            {" "}
+
+
+                            <span className="status-active">
+
+                                Ativo
+
+                            </span>
+
+
+                            </p>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+
+
+                    <p>
+
+                    Bem-vindo de volta,
+
+                    {" "}
+
+                    <strong>
+
+                    {profile?.full_name}
+
+                    </strong>
+
+                    .
+
+                    Aqui está o resumo do seu restaurante.
+
+                    </p>
+
+
+
+                </section>
+
+
+
+
+
+
+
+
+
+                <section className="cockpit-stats">
+
+
+
+
+
+
+
+                    <div className="status-card">
+
+
+                        <FolderOpen/>
+
+
+                        <div>
+
+                            <span>
+
+                            Categorias
+
+                            </span>
+
+
+                            <strong>
+
+                            {
+                                stats.categoriesCount
+                            }
+
+                            </strong>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+
+
+
+
+
+
+                    <div className="status-card">
+
+
+                        <Package/>
+
+
+                        <div>
+
+                            <span>
+
+                            Produtos
+
+                            </span>
+
+
+                            <strong>
+
+                            {
+                                stats.productsCount
+                            }
+
+                            </strong>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+
+
+
+
+
+
+                    <div className="status-card">
+
+
+                        <QrCode/>
+
+
+                        <div>
+
+                            <span>
+
+                            QR Code
+
+                            </span>
+
+
+
+                            <strong>
+
+                            {
+
+                            stats.qrCode?.ativo
+
+                            ?
+
+                            "Ativo"
+
+                            :
+
+                            "Inativo"
+
+                            }
+
+                            </strong>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+
+
+
+
+
+
+                    <div className="status-card">
+
+
+                        <Utensils/>
+
+
+                        <div>
+
+                            <span>
+
+                            Menu
+
+                            </span>
+
+
+                            <strong>
+
+                            {
+
+                            stats.productsCount > 0
+
+                            ?
+
+                            "Publicado"
+
+                            :
+
+                            "Vazio"
+
+                            }
+
+                            </strong>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+
+
+
+
+
+
+                    <div className="status-card">
+
+
+                        <Eye/>
+
+
+                        <div>
+
+                            <span>
+
+                            Acessos
+
+                            </span>
+
+
+                            <strong>
+
+                            {
+
+                            stats.qrCode?.acessos
+
+                            ||
+
+                            0
+
+                            }
+
+
+                            </strong>
+
+
+                        </div>
+
+
+                    </div>
+
+
+
+
+
+                </section>
+
+
+
+
+
+
+
+
+
+                <section className="activity-panel">
+
+
+
+                    <div className="activity-header">
+
+
+                        <h2>
+
+                        Últimas atividades
+
+                        </h2>
+
+
+                    </div>
+
+
+
+
+
+
+                    {
+
+                    loading
+
+                    ?
+
+                    <p>
+
+                    Carregando atividades...
+
+                    </p>
+
+
+
+                    :
+
+
+
+                    <div className="activity-list">
+
+
+                    {
+
+                    activities.length === 0
+
+                    ?
+
+
+                    <p>
+
+                    Ainda não existem atividades.
+
+                    </p>
+
+
+
+                    :
+
+
+
+                    activities.map(activity=>(
+
+
+                        <div
+
+                        className="activity-item"
+
+                        key={
+
+                            activity.type +
+
+                            activity.date
+
+                        }
+
+
+                        >
+
+
+
+                            <div className="activity-icon">
+
+
+                                <Clock size={18}/>
+
+
+                            </div>
+
+
+
+
+
+                            <div>
+
+
+                                <strong>
+
+                                {
+                                    activity.text
+                                }
+
+                                </strong>
+
+
+
+                                <p>
+
+                                {
+                                    new Date(
+                                        activity.date
+                                    )
+                                    .toLocaleString(
+                                        "pt-PT"
+                                    )
+                                }
+
+                                </p>
+
+
+
+                            </div>
+
+
+
+                        </div>
+
+
+                    ))
+
+
+
+                    }
+
+
+                    </div>
+
+
+                    }
+
+
+
+
+                </section>
+
+
+
+
+
+
+            </div>
+
+
+
+            );
+
+
+
+        }
+
+
+    };
+
+
+
+
+
+
+
+
     return (
+
 
         <div className="admin-layout">
 
 
+
             <AdminSidebar
+
                 activePage={activePage}
+
                 setActivePage={setActivePage}
+
             />
+
+
 
 
             <main className="admin-content">
 
 
+
                 <AdminHeader
+
                     profile={profile}
+
                     restaurant={restaurants}
+
                     logout={logout}
+
                 />
+
+
 
 
                 {renderPage()}
 
 
+
+
             </main>
+
 
 
         </div>
 
+
+
     );
+
 
 }
