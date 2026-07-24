@@ -23,7 +23,7 @@ import {
     subscribeDashboardChanges
 } from "../services/restaurantDashboardService";
 
-
+import { supabase } from "../services/supabase";
 
 import AdminSidebar from "../components/admin/AdminSidebar";
 import AdminHeader from "../components/admin/AdminHeader";
@@ -36,7 +36,6 @@ import AdminSettings from "../components/admin/AdminSettings";
 
 
 import "../styles/admin.css";
-
 
 
 
@@ -56,7 +55,7 @@ export default function RestaurantAdminDashboard(){
     } = useAuth();
 
 
-
+    const [restaurant,setRestaurant] = useState(null);
 
 
     const [activePage,setActivePage] = useState(
@@ -189,6 +188,81 @@ export default function RestaurantAdminDashboard(){
 
 
 
+      //* novo useEffect
+
+      useEffect(()=>{
+
+
+    async function loadRestaurant(){
+
+
+        if(!profile?.restaurant_id)
+            return;
+
+
+
+        const {
+
+            data,
+
+            error
+
+        } = await supabase
+
+
+            .from("restaurants")
+
+
+            .select(
+                `
+                id,
+                name,
+                business_type,
+                status,
+                logo_url
+                `
+            )
+
+
+            .eq(
+                "id",
+                profile.restaurant_id
+            )
+
+
+            .single();
+
+
+
+
+        if(error){
+
+            console.error(
+                "Erro ao buscar restaurante:",
+                error
+            );
+
+            return;
+
+        }
+
+
+
+
+        setRestaurant(data);
+
+
+
+    }
+
+
+
+    loadRestaurant();
+
+
+
+},[profile]);   //fechar
+
 
 
 
@@ -304,36 +378,38 @@ export default function RestaurantAdminDashboard(){
                         <div>
 
 
-                            <h1>
-
-                            {
-                                restaurants?.name
-                                ||
-                                "Restaurante"
-
-                            }
-
-                            </h1>
+                           <h1>
+{
+    restaurant?.name || "Empresa"
+}
+</h1>
 
 
+<p>
 
-                            <p>
+{
+    restaurant?.business_type
+}
 
-                            Restaurante ·
+{" "}
 
-                            {" "}
+·
 
+{" "}
 
-                            <span className="status-active">
+<span className="status-active">
 
-                                Ativo
+{
+    restaurant?.status === "active"
+    ?
+    "Ativo"
+    :
+    "Suspenso"
+}
 
-                            </span>
+</span>
 
-
-                            </p>
-
-
+</p>
                         </div>
 
 
