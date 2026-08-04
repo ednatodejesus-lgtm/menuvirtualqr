@@ -20,6 +20,3 @@ export const TABLES = {
   QR_CODES: 'qr_codes'
 }
 
-// Verificar se as tabelas estão definidas
-console.log('TABLES:', TABLES)
-console.log('TABLES.PROFILES:', TABLES.PROFILES)

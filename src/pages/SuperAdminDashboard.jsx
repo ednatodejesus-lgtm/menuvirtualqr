@@ -26,6 +26,8 @@ import RestaurantCreate from "../components/superadmin/RestaurantCreate";
 
 import RestaurantSuccessModal from "../components/superadmin/RestaurantSuccessModal";
 
+import ManagerModal from "../components/superadmin/ManagerModal";
+
 import "../styles/superadmin.css";
 
 
@@ -45,6 +47,21 @@ const [search,setSearch]=useState("");
 const [createdRestaurant, setCreatedRestaurant] = useState(null);
 
 const [showSuccessModal, setShowSuccessModal] = useState(false);
+//novos
+
+const [theme,setTheme] = useState("light");
+
+const [selectedRestaurant,setSelectedRestaurant] = useState(null);
+
+const [showQR,setShowQR] = useState(false);
+
+const [showManager,setShowManager] = useState(false);
+
+const [profile,setProfile] = useState(null);
+
+//Modal states
+const [showManagerModal, setShowManagerModal] = useState(false);
+const [managerData, setManagerData] = useState(null);
 
 
 async function loadRestaurants(){
@@ -99,12 +116,55 @@ setLoading(false);
 
 
 
+async function loadProfile(){
+
+const {
+data:{
+user
+}
+}=await supabase.auth.getUser();
+
+
+if(!user)
+return;
+
+
+const {
+data
+}=await supabase
+
+.from("profiles")
+
+.select("*")
+
+.eq(
+"id",
+user.id
+)
+
+.single();
+
+
+setProfile(data);
+
+}
+
+
+
+
+
+
 useEffect(()=>{
 
 loadRestaurants();
 
+loadProfile();
+
+
 },[]);
 
+
+//duas funções
 
 
 
@@ -168,7 +228,7 @@ loadRestaurants();
 
 
 
-
+//função para eliminar restaurante
 
 
 async function deleteRestaurant(id){
@@ -176,7 +236,7 @@ async function deleteRestaurant(id){
 
 const confirmDelete =
 window.confirm(
-"Eliminar este restaurante?"
+`Tem Certeza Que Deseja Eliminar ${restaurant.name}? Esta ação não pode ser revertida.`
 );
 
 
@@ -222,12 +282,14 @@ loadRestaurants();
 
 
 
-function openRestaurant(id){
+function openRestaurant(restaurant){
 
-console.log(
-"VER RESTAURANTE:",
-id
+
+window.open(
+`/menu/${restaurant.slug}`,
+"_blank"
 );
+
 
 }
 
@@ -235,82 +297,124 @@ id
 
 
 
-function openQR(id){
+function openQR(restaurant){
 
-console.log(
-"QR RESTAURANTE:",
-id
-);
+setSelectedRestaurant(restaurant);
 
-}
-
-
-
-
-
-function openManager(id){
-
-console.log(
-"GERENTE:",
-id
-);
+setShowQR(true);
 
 }
 
 
 
+//* function to open manager modal and load manager data
+
+async function openManager(restaurant){
+
+const {
+data,
+error
+} = await supabase
+
+.from("profiles")
+
+.select("*")
+
+.eq(
+"restaurant_id",
+restaurant.id
+)
+
+.eq(
+"role",
+"restaurant_admin"
+)
+
+.single();
+
+
+if(error){
+
+console.error(error);
+
+return;
+
+}
+
+
+setManagerData(data);
+
+setShowManagerModal(true);
+
+}
+
+
+function toggleTheme(){
+
+const newTheme =
+theme==="light"
+?
+"dark"
+:
+"light";
+
+
+setTheme(newTheme);
+
+document.body.className=newTheme;
+
+}
 
 
 return (
 
 <div className="super-dashboard">
 
+<h1>Menu Virtual QR</h1>
 
 <header className="dashboard-top">
 
+  <div>
 
-<div>
+    <p>
+      Bom dia, Super Admin:
+      <strong> {profile?.full_name || "Administrador"}</strong>
+    </p>
 
+  </div>
 
-<h1>
-Super Admin
-</h1>
+  <div className="header-actions">
 
+   
+    <button
+      className="primary-button"
+      onClick={() => setShowCreate(!showCreate)}
+    >
+      <Plus size={18} />
+      Novo Restaurante
+    </button>
 
-<p>
-Gestão central do Menu Virtual QR
-</p>
+ <button
+      className="secondary-button"
+      onClick={toggleTheme}
+    >
+      {theme === "light" ? "🌙" : "☀️"}
+      Alternar tema
+    </button>
 
+    <button
+      className="danger-button"
+      onClick={async () => {
+        await supabase.auth.signOut();
+        window.location.href = "/login";
+      }}
+    >
+      Sair
+    </button>
 
-</div>
-
-
-
-<button
-
-className="primary-button"
-
-onClick={()=>
-setShowCreate(
-!showCreate
-)
-}
-
->
-
-
-<Plus size={18}/>
-
-Novo Restaurante
-
-
-</button>
-
+  </div>
 
 </header>
-
-
-
 
 
 {
@@ -650,7 +754,7 @@ title="Ver restaurante"
 
 onClick={()=>
 openRestaurant(
-restaurant.id
+restaurant
 )
 }
 
@@ -669,7 +773,7 @@ title="QR"
 
 onClick={()=>
 openQR(
-restaurant.id
+restaurant
 )
 }
 
@@ -688,7 +792,7 @@ title="Gerente"
 
 onClick={()=>
 openManager(
-restaurant.id
+restaurant
 )
 }
 
@@ -813,8 +917,51 @@ setCreatedRestaurant(null);
 
  />
 
+
 )
 }
+
+
+
+
+ {
+showManagerModal && (
+
+<ManagerModal
+
+manager={managerData}
+
+onClose={() => {
+
+setShowManagerModal(false);
+
+setManagerData(null);
+
+}}
+
+/>
+
+)
+}
+
+
+<footer className="dashboard-footer">
+
+© 2026 Menu Virtual QR
+
+<br/>
+
+Todos os direitos reservados.
+
+<br/>
+
+Feito com ☕ e código por Ednato
+
+<br/>
+
+Com assistência do ChatGPT
+
+</footer>
 
 
 </div>

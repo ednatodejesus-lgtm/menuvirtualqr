@@ -304,7 +304,7 @@ generateRestaurantPDF(data)
 
 Baixar PDF
 
-</button>
+</button> a
 
 
 
