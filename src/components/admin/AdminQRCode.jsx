@@ -13,6 +13,10 @@ import {
 } from "../../services/qrService";
 
 
+import { generateRestaurantPDF } 
+from "../../services/pdfGenerator";
+
+
 import {
     QRCodeCanvas
 } from "qrcode.react";
@@ -221,6 +225,8 @@ rel="noreferrer"
 
 <button
 
+className="secondary-action"
+
 onClick={downloadQR}
 
 >
@@ -230,6 +236,20 @@ Baixar QR Code
 </button>
 
 
+
+<button
+
+className="secondary-action"
+
+onClick={() =>
+generateRestaurantPDF(data)
+}
+
+>
+
+Baixar PDF
+
+</button>
 
 
 

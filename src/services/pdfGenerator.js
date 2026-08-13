@@ -290,7 +290,7 @@ doc.text(
 
 
 doc.text(
-"Feito com amor, café e ChatGPT",
+"Feito com café, amor e ChatGPT",
 20,
 265
 );
