@@ -17,7 +17,8 @@ import {
 
 import "./index.css";
 import "./styles/admin-ui.css";
-
+import "./styles/theme.css";
+import "./styles/public-menu.css";
 
 
 ReactDOM.createRoot(

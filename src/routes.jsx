@@ -1,39 +1,49 @@
 import {
     Routes,
-    Route,
-    Navigate
+    Route
 } from "react-router-dom";
-
 
 import Login from "./pages/Login";
 
 import DashboardRouter
 from "./pages/DashboardRouter";
 
+import PublicMenu
+from "./pages/PublicMenu";
 
-import ProtectedRoute 
+import ProtectedRoute
 from "./components/common/ProtectedRoute";
 
 
-
-export default function AppRoutes(){
-
+export default function AppRoutes() {
 
     return (
         <Routes>
-            <Route 
-                   path="/login"
-                   element={<Login />}
+
+            {/* LOGIN */}
+            <Route
+                path="/login"
+                element={<Login />}
             />
+
+
+            {/* DASHBOARD PROTEGIDO */}
             <Route
                 path="/DashboardRouter"
                 element={
                     <ProtectedRoute>
-                        <DashboardRouter/>
+                        <DashboardRouter />
                     </ProtectedRoute>
                 }
             />
+
+
+            {/* MENU PÚBLICO */}
+            <Route
+                path="/menu/:slug"
+                element={<PublicMenu />}
+            />
+
         </Routes>
     );
-
 }

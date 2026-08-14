@@ -418,7 +418,7 @@ export default function AdminProducts() {
             )}
 
             {form.image_url && !uploadingImage && (
-              <span style={{ fontSize: "0.75rem", color: "#22c55e" }}>✅ Imagem carregada</span>
+              <span style={{ fontSize: "0.75rem", color: "#22c55e" }}>Imagem carregada</span>
             )}
           </div>
         </div>
@@ -467,7 +467,7 @@ export default function AdminProducts() {
           />
         </div>
 
-        {/* 🔥 CHECKBOX DISPONIVEL */}
+        {/*CHECKBOX DISPONIVEL */}
         <div style={{ 
           display: "flex", 
           alignItems: "center", 

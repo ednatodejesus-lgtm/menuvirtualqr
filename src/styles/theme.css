@@ -1,0 +1,170 @@
+/* =========================================
+   MENU VIRTUAL QR
+   GLOBAL THEME
+   ========================================= */
+
+:root {
+  /* -----------------------------------------
+     COLORS
+     ----------------------------------------- */
+
+  --color-primary: #0B0C10;
+  --color-secondary: #1F2833;
+  --color-accent: #45A29E;
+  --color-text: #C5C6C7;
+  --color-background: #0B0C10;
+  --color-hero-overlay: rgba(11, 12, 16, 0.85);
+
+  /* -----------------------------------------
+     TYPOGRAPHY
+     ----------------------------------------- */
+
+  --font-body: "Roboto", sans-serif;
+  --font-headings: "Montserrat", sans-serif;
+  --font-accent: "Orbitron", sans-serif;
+
+  /* -----------------------------------------
+     SPACING
+     ----------------------------------------- */
+
+  --spacing: 1.2rem;
+
+  /* -----------------------------------------
+     EFFECTS
+     ----------------------------------------- */
+
+  --box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);
+
+  --transition: all 0.3s ease;
+
+  --border-radius: 8px;
+
+  /* -----------------------------------------
+     HERO
+     ----------------------------------------- */
+
+  --hero-background-image: none;
+  --hero-cta-text: "";
+  --hero-cta-url: "";
+}
+
+
+/* =========================================
+   GLOBAL RESET
+   ========================================= */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+
+html {
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+}
+
+
+body {
+  margin: 0;
+  padding: 0;
+
+  background: var(--color-background);
+  color: var(--color-text);
+
+  font-family: var(--font-body);
+
+  transition: var(--transition);
+}
+
+
+/* =========================================
+   HEADINGS
+   ========================================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+
+  font-family: var(--font-headings);
+
+  color: var(--color-text);
+}
+
+
+/* =========================================
+   LINKS
+   ========================================= */
+
+a {
+  color: var(--color-accent);
+
+  text-decoration: none;
+
+  transition: var(--transition);
+}
+
+
+a:hover {
+  opacity: 0.85;
+}
+
+
+/* =========================================
+   BUTTONS
+   ========================================= */
+
+button {
+  font-family: var(--font-body);
+
+  border: none;
+
+  border-radius: var(--border-radius);
+
+  transition: var(--transition);
+
+  cursor: pointer;
+}
+
+
+/* =========================================
+   IMAGES
+   ========================================= */
+
+img {
+  display: block;
+
+  max-width: 100%;
+}
+
+
+/* =========================================
+   SCROLLBAR
+   ========================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+
+::-webkit-scrollbar-track {
+  background: var(--color-primary);
+}
+
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-accent);
+
+  border-radius: var(--border-radius);
+}
+
+
+::-webkit-scrollbar-thumb:hover {
+  opacity: 0.85;
+}
