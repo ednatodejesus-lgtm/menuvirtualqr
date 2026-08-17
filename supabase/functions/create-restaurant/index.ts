@@ -238,7 +238,7 @@ const APP_URL = Deno.env.get("APP_URL")
   || "http://localhost:5173";
 
 
-const publicLink = `${APP_URL}/${restaurant.slug}`;
+const publicLink = `${APP_URL}/menu/${restaurant.slug}`;
 
 
 const qrCodeValue = `MENU-${restaurant.slug}-${Date.now()}`;
