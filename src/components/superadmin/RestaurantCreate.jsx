@@ -437,16 +437,60 @@ onChange={handleChange}
 Restaurante
 </option>
 
+<option value="loja_tech">
+Loja de tecnologia
+</option>
+
 <option value="bar_noturno">
-Bar Noturno
+Bar Noturno PUB
 </option>
 
 <option value="hotel">
 Hotel
 </option>
 
+<option value="hospedaria">
+Hospedaria
+</option>
+
+<option value="loja_roupa">
+Loja de roupa
+</option>
+
+<option value="boutique">
+Boutique
+</option>
+
 <option value="spa">
 Spa
+</option>
+
+<option value="humbergeria">
+Humbergeria
+</option>
+
+<option value="cafeteria">
+Cafeteria
+</option>
+
+<option value="pizzaria">
+Pizzaria
+</option>
+
+<option value="resort">
+Resort
+</option>
+
+<option value="farmacia">
+Farmacia
+</option>
+
+<option value="stand_automovel">
+Stand Automóvel
+</option>
+
+<option value="outros">
+Outros
 </option>
 
 </select>
