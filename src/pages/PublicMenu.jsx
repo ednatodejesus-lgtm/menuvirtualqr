@@ -8,6 +8,7 @@ import {
 } from "../services/publicMenuService";
 
 import ThemeProvider from "../engine/ThemeProvider";
+import "../styles/public/public-menu.css";
 
 import RestaurantHero from "../components/public/RestaurantHero";
 import CategoryTabs from "../components/public/CategoryTabs";

@@ -1,38 +1,87 @@
-const DEFAULT_STYLES = {
-  spacing: "1rem",
-  box_shadow: "0 4px 20px rgba(0, 0, 0, 0.10)",
-  transition: "all 0.3s ease",
-  border_radius: "12px",
-  button_style: "rounded",
-};
+export function resolveStyles(theme = {}) {
+  const tokens = theme?.tokens || {};
+  const materials = theme?.visual?.materials || {};
+  const effects = theme?.visual?.effects || {};
+  const animations = theme?.animations || {};
+  const interaction = theme?.interaction || {};
 
-
-export function resolveStyles(styles = {}) {
   return {
-    spacing:
-      styles.spacing ||
-      DEFAULT_STYLES.spacing,
+    spacingUnit:
+      tokens.spacing_unit || "8px",
 
-    box_shadow:
-      styles.box_shadow ||
-      styles.shadow ||
-      DEFAULT_STYLES.box_shadow,
+    containerMaxWidth:
+      tokens.container_max_width || "1280px",
+
+    cardRadius:
+      tokens.card_radius || materials.radius || "16px",
+
+    sectionRadius:
+      tokens.section_radius || "24px",
+
+    buttonRadius:
+      tokens.button_radius || "999px",
+
+    shadow:
+      tokens.shadow ||
+      effects.shadow ||
+      "0 10px 30px rgba(0,0,0,0.12)",
 
     transition:
-      styles.transition ||
-      DEFAULT_STYLES.transition,
+      tokens.transition ||
+      "0.3s ease",
 
-    border_radius:
-      styles.border_radius ||
-      styles.borderRadius ||
-      DEFAULT_STYLES.border_radius,
+    borderStyle:
+      materials.border_style || "thin and subtle",
 
-    button_style:
-      styles.button_style ||
-      styles.buttonStyle ||
-      DEFAULT_STYLES.button_style,
+    surfaceStyle:
+      materials.surface_style || "solid",
+
+    texture:
+      materials.texture || "none",
+
+    imageStyle:
+      materials.image_style || "natural",
+
+    blur:
+      effects.blur ?? false,
+
+    glass:
+      effects.glass ?? false,
+
+    noise:
+      effects.noise ?? false,
+
+    gradient:
+      effects.gradient ?? false,
+
+    animationIntensity:
+      animations.intensity || "subtle",
+
+    cardHover:
+      animations.card_hover || "lift",
+
+    pageEnter:
+      animations.page_enter || "fade_up",
+
+    imageHover:
+      animations.image_hover || "zoom",
+
+    sectionReveal:
+      animations.section_reveal || "fade_up",
+
+    buttonStyle:
+      interaction.button_style || "solid",
+
+    hoverBehavior:
+      interaction.hover_behavior || "lift",
+
+    transitionSpeed:
+      interaction.transition_speed || "normal",
+
+    transitionStyle:
+      interaction.transition_style || "smooth",
+
+    microInteractions:
+      interaction.micro_interactions ?? true,
   };
 }
-
-
-export { DEFAULT_STYLES };

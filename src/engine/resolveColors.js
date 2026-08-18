@@ -1,41 +1,25 @@
-const DEFAULT_COLORS = {
-  text: "#1F2937",
-  accent: "#E67E22",
-  primary: "#FFFFFF",
-  secondary: "#F3F4F6",
-  background: "#FFFFFF",
-  hero_overlay: "rgba(0, 0, 0, 0.35)",
-};
+export function resolveColors(theme = {}) {
+  const colors = theme?.visual?.colors || {};
 
-
-export function resolveColors(colors = {}) {
   return {
-    text:
-      colors.text ||
-      DEFAULT_COLORS.text,
+    primary: colors.primary || "#111111",
+    secondary: colors.secondary || "#333333",
+    accent: colors.accent || "#C9A227",
 
-    accent:
-      colors.accent ||
-      DEFAULT_COLORS.accent,
+    background: colors.background || "#FFFFFF",
+    surface: colors.surface || colors.background || "#FFFFFF",
+    surfaceAlt: colors.surface_alt || colors.surface || "#F5F5F5",
+    card: colors.card || colors.surface || "#FFFFFF",
 
-    primary:
-      colors.primary ||
-      DEFAULT_COLORS.primary,
+    text: colors.text || "#111111",
+    textMuted: colors.text_muted || "#777777",
+    textInverse: colors.text_inverse || "#FFFFFF",
 
-    secondary:
-      colors.secondary ||
-      DEFAULT_COLORS.secondary,
+    border: colors.border || "rgba(0,0,0,0.1)",
+    overlay: colors.overlay || "rgba(0,0,0,0.45)",
 
-    background:
-      colors.background ||
-      DEFAULT_COLORS.background,
-
-    hero_overlay:
-      colors.hero_overlay ||
-      colors.overlay ||
-      DEFAULT_COLORS.hero_overlay,
+    success: colors.success || "#2A9D8F",
+    warning: colors.warning || "#E9C46A",
+    error: colors.error || "#E63946",
   };
 }
-
-
-export { DEFAULT_COLORS };

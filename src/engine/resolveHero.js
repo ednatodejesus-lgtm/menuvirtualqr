@@ -1,108 +1,60 @@
-const DEFAULT_HERO = {
-  cta_url: "",
-  cta_text: "",
-  headline: "",
-  subheadline: "",
-  background_image: "",
-  overlay: "rgba(0, 0, 0, 0.35)",
-  text_color: "#FFFFFF",
-};
-
-
-/**
- * Normaliza o Hero recebido pela IA.
- *
- * Suporta:
- *
- * heroSection
- * hero_section
- *
- * title / headline
- * subtitle / subheadline
- * backgroundImage / background_image
- * textColor / text_color
- *
- * cta.text / cta_text
- * cta.link / cta_url
- */
 export function resolveHero(theme = {}) {
-
-  const hero =
-    theme.hero_section ||
-    theme.heroSection ||
-    {};
-
-
-  const cta =
-    hero.cta ||
-    {};
-
+  const hero = theme.hero || {};
+  const layoutHero = theme.layout?.hero || {};
+  const visual = theme.visual || {};
 
   return {
-
-    // =========================================
-    // CTA
-    // =========================================
-
-    cta_url:
-      hero.cta_url ||
-      cta.link ||
-      DEFAULT_HERO.cta_url,
-
-
-    cta_text:
-      hero.cta_text ||
-      cta.text ||
-      DEFAULT_HERO.cta_text,
-
-
-    // =========================================
-    // TEXT
-    // =========================================
-
-    headline:
-      hero.headline ||
+    title:
       hero.title ||
-      DEFAULT_HERO.headline,
+      "Bem-vindo",
 
-
-    subheadline:
-      hero.subheadline ||
+    subtitle:
       hero.subtitle ||
-      DEFAULT_HERO.subheadline,
+      "",
 
+    ctaText:
+      hero.cta_text ||
+      "Ver Menu",
 
-    // =========================================
-    // IMAGE
-    // =========================================
+    secondaryCta:
+      hero.secondary_cta ||
+      "",
 
-    background_image:
-      hero.background_image ||
-      hero.backgroundImage ||
-      DEFAULT_HERO.background_image,
+    imageUrl:
+      hero.image_url ||
+      "",
 
+    imageTreatment:
+      hero.image_treatment ||
+      "standard",
 
-    // =========================================
-    // OVERLAY
-    // =========================================
+    visualPriority:
+      hero.visual_priority ||
+      layoutHero.visual_priority ||
+      "image",
 
-    overlay:
-      hero.overlay ||
-      theme.colors?.hero_overlay ||
-      theme.colors?.overlay ||
-      DEFAULT_HERO.overlay,
+    overlayStrength:
+      typeof hero.overlay_strength === "number"
+        ? hero.overlay_strength
+        : 0.5,
 
+    variant:
+      layoutHero.variant ||
+      "fullscreen",
 
-    // =========================================
-    // TEXT COLOR
-    // =========================================
+    height:
+      layoutHero.height ||
+      "large",
 
-    text_color:
-      hero.text_color ||
-      hero.textColor ||
-      DEFAULT_HERO.text_color,
+    alignment:
+      layoutHero.alignment ||
+      "center",
+
+    mood:
+      visual.brand?.mood ||
+      "",
+
+    imagery:
+      visual.imagery || {},
   };
 }
-
-
-export { DEFAULT_HERO };

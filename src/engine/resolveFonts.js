@@ -1,26 +1,18 @@
-const DEFAULT_FONTS = {
-  body: "Roboto",
-  headings: "Montserrat",
-  accent: "Roboto",
-};
+export function resolveFonts(theme = {}) {
+  const typography = theme?.visual?.typography || {};
 
-
-export function resolveFonts(fonts = {}) {
   return {
-    body:
-      fonts.body ||
-      DEFAULT_FONTS.body,
+    heading: typography.heading || "Playfair Display",
+    body: typography.body || "Inter",
+    accent: typography.accent || typography.heading || "Playfair Display",
 
-    headings:
-      fonts.headings ||
-      fonts.heading ||
-      DEFAULT_FONTS.headings,
+    headingWeight: typography.heading_weight || 600,
+    bodyWeight: typography.body_weight || 400,
 
-    accent:
-      fonts.accent ||
-      DEFAULT_FONTS.accent,
+    headingLetterSpacing:
+      typography.heading_letter_spacing || "normal",
+
+    bodyLetterSpacing:
+      typography.body_letter_spacing || "normal",
   };
 }
-
-
-export { DEFAULT_FONTS };
