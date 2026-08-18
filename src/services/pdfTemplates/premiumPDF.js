@@ -75,7 +75,8 @@ export async function generatePremiumPDF(data) {
     doc.setFontSize(7);
     doc.setTextColor(150, 150, 150);
     doc.setFont("helvetica", "normal");
-    doc.text("Menu Virtual QR - Todos os direitos reservados", pageWidth / 2, pageHeight - 4, { align: "center" });
+    doc.text("© 2026 Menu Virtual QR ", pageWidth / 2, pageHeight - 15, { align: "center" });
+
 
     resolve(doc.output("blob"));
   });
