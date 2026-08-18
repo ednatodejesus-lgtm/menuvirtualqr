@@ -40,43 +40,55 @@ function generatePassword(length = 12): string {
   return pass;
 }
 
-async function generateThemeWithAI(name: string, business_type: string, style: string, description: string) {
-  const DEEPSEEK_API_KEY = Deno.env.get("DEEPSEEK_API_KEY");
-  if (!DEEPSEEK_API_KEY) return null;
-
+//chamado da função generate-theme para gerar o tema com DeepSeek
+async function generateTheme(
+  name: string,
+  business_type: string,
+  style: string,
+  description: string,
+  supabaseUrl: string,
+  serviceRoleKey: string,
+) {
   try {
-    const prompt = `
-Create a visual theme for a restaurant:
-Name: ${name}
-Type: ${business_type}
-Style: ${style}
-Description: ${description}
-
-Return JSON with colors, fonts, styles and hero section.
-`;
-
-    const response = await fetch("https://api.deepseek.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${DEEPSEEK_API_KEY}`,
-        "Content-Type": "application/json"
+    const response = await fetch(
+      `${supabaseUrl}/functions/v1/generate-theme`,
+      {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${serviceRoleKey}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          business_type,
+          style,
+          description,
+        }),
       },
-      body: JSON.stringify({
-        model: "deepseek-chat",
-        messages: [
-          { role: "system", content: "You are a designer. Respond only with valid JSON." },
-          { role: "user", content: prompt }
-        ],
-        temperature: 0.8,
-        max_tokens: 800
-      })
-    });
+    );
 
-    if (!response.ok) return null;
-    const data = await response.json();
-    return JSON.parse(data.choices[0].message.content);
+    if (!response.ok) {
+      const errorText = await response.text();
+
+      console.error(
+        "GENERATE THEME ERROR:",
+        response.status,
+        errorText,
+      );
+
+      return null;
+    }
+
+    const result = await response.json();
+
+    return result?.theme ?? null;
+
   } catch (error) {
-    console.error("Error generating theme:", error);
+    console.error(
+      "Error calling generate-theme:",
+      error,
+    );
+
     return null;
   }
 }
@@ -154,10 +166,18 @@ Deno.serve(async (req: Request) => {
     }
 
     // 4. Generate theme with AI (if description provided)
-    let theme = null;
-    if (description) {
-      theme = await generateThemeWithAI(name, business_type, style, description);
-    }
+   let theme = null;
+
+if (description) {
+  theme = await generateTheme(
+    name,
+    business_type,
+    style,
+    description,
+    SUPABASE_URL,
+    SERVICE_ROLE_KEY,
+  );
+}
 
     // 5. Create restaurant
     const { data: restaurant, error: restaurantError } = await supabaseAdmin
