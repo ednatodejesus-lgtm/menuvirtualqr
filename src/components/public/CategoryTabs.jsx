@@ -1,4 +1,4 @@
-import { useTheme } from "../../contexts/ThemeContext";
+import { useTheme } from "../../engine/ThemeProvider";
 
 export default function CategoryTabs({
   categories = [],
@@ -11,14 +11,16 @@ export default function CategoryTabs({
     return null;
   }
 
-  const variant =
-    theme?.layout?.categories?.variant ||
-    "horizontal_scroll";
+  const variantMap = {
+    "horizontal_scroll": "horizontal",
+    "tabs": "tabs",
+    "pills": "pills",
+    "floating": "floating",
+    "sidebar": "sidebar"
+  };
 
-  const position =
-    theme?.layout?.categories?.position ||
-    "static";
-
+  const variant = variantMap[theme?.layout?.categories?.variant] || "tabs";
+  const position = theme?.layout?.categories?.position || "static";
 
   const allCategories = [
     {
@@ -28,7 +30,6 @@ export default function CategoryTabs({
     ...categories,
   ];
 
-
   return (
     <nav
       className={`
@@ -37,13 +38,11 @@ export default function CategoryTabs({
         mvqr-category-tabs--${position}
       `}
       aria-label="Categorias do menu"
+      data-categories-variant={variant}
     >
       <div className="mvqr-category-tabs__inner">
-
         {allCategories.map((category) => {
-
-          const active =
-            activeCategory === category.id;
+          const active = activeCategory === category.id;
 
           return (
             <button
@@ -53,15 +52,12 @@ export default function CategoryTabs({
                 mvqr-category-tab
                 ${active ? "active" : ""}
               `}
-              onClick={() =>
-                onCategoryChange(category.id)
-              }
+              onClick={() => onCategoryChange(category.id)}
             >
               {category.name}
             </button>
           );
         })}
-
       </div>
     </nav>
   );

@@ -1,4 +1,4 @@
-import { Search, X } from "lucide-react";
+import { Search, } from "lucide-react";
 
 export default function SearchBar({
   value,
@@ -34,7 +34,6 @@ export default function SearchBar({
           onClick={() => onChange("")}
           aria-label="Limpar pesquisa"
         >
-          <X size={17} />
         </button>
       )}
 

@@ -1,25 +1,31 @@
-export function resolveColors(theme = {}) {
+/**
+ * Resolve as cores do tema e retorna CSS variables
+ */
+export function resolveColors(theme) {
   const colors = theme?.visual?.colors || {};
-
+  
   return {
-    primary: colors.primary || "#111111",
-    secondary: colors.secondary || "#333333",
-    accent: colors.accent || "#C9A227",
-
-    background: colors.background || "#FFFFFF",
-    surface: colors.surface || colors.background || "#FFFFFF",
-    surfaceAlt: colors.surface_alt || colors.surface || "#F5F5F5",
-    card: colors.card || colors.surface || "#FFFFFF",
-
-    text: colors.text || "#111111",
-    textMuted: colors.text_muted || "#777777",
-    textInverse: colors.text_inverse || "#FFFFFF",
-
-    border: colors.border || "rgba(0,0,0,0.1)",
-    overlay: colors.overlay || "rgba(0,0,0,0.45)",
-
-    success: colors.success || "#2A9D8F",
-    warning: colors.warning || "#E9C46A",
-    error: colors.error || "#E63946",
+    '--color-primary': colors.primary || '#8B4513',
+    '--color-secondary': colors.secondary || '#DAA520',
+    '--color-accent': colors.accent || '#F5DEB3',
+    '--color-background': colors.background || '#1A0F0A',
+    '--color-surface': colors.surface || '#2C1810',
+    '--color-surface-alt': colors.surface_alt || '#3D2318',
+    '--color-text': colors.text || '#FFFFFF',
+    '--color-text-muted': colors.text_muted || '#94A3B8',
+    '--color-text-inverse': colors.text_inverse || '#1A0F0A',
+    '--color-card': colors.card || '#2C1810',
+    '--color-border': colors.border || '#3D2318',
+    '--color-error': colors.error || '#EF4444',
+    '--color-success': colors.success || '#22C55E',
+    '--color-warning': colors.warning || '#F59E0B',
+    '--color-overlay': colors.overlay || 'rgba(0,0,0,0.6)',
+    // Tokens
+    '--shadow-default': theme?.tokens?.shadow || '0 4px 12px rgba(0,0,0,0.1)',
+    '--transition-default': theme?.tokens?.transition || '0.3s ease',
+    '--radius-card': theme?.tokens?.card_radius || '12px',
+    '--radius-button': theme?.tokens?.button_radius || '8px',
+    '--spacing-unit': theme?.tokens?.spacing_unit || '8px',
+    '--container-max-width': theme?.tokens?.container_max_width || '1200px',
   };
 }

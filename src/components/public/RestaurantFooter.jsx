@@ -1,387 +1,131 @@
-import { useTheme } from "../../contexts/ThemeContext";
-import {
-  MapPin,
-  Phone,
-  Globe,
-  MessageCircle,
-  ArrowUpRight,
-} from "lucide-react";
+import React from 'react';
+import { useTheme } from '../../engine/ThemeProvider';
+import { MapPin, Phone, Mail } from 'lucide-react';
+// 🔥 IMPORTAR ICONES DE MARCAS DO REACT-ICONS
+import { 
+  FaInstagram, 
+  FaFacebook, 
+  FaWhatsapp, 
+  FaTiktok 
+} from 'react-icons/fa';
 
-export default function RestaurantFooter({
-  restaurant,
-}) {
+export default function RestaurantFooter({ restaurant }) {
   const { theme } = useTheme();
+  const footerConfig = theme?.layout?.footer || {};
+  const colors = theme?.visual?.colors || {};
+  
+  const getFooterVariant = () => {
+    switch (footerConfig.variant || 'minimal') {
+      case 'editorial': return 'footer-editorial';
+      case 'immersive': return 'footer-immersive';
+      case 'dark': return 'footer-dark';
+      default: return 'footer-minimal';
+    }
+  };
 
-  const year =
-    new Date().getFullYear();
+  const getAlignment = () => {
+    switch (footerConfig.alignment || 'center') {
+      case 'split': return 'footer-split';
+      case 'left': return 'footer-left';
+      case 'right': return 'footer-right';
+      default: return 'footer-center';
+    }
+  };
 
-  const variant =
-    theme?.layout?.footer?.variant ||
-    "elegant";
+  const footerStyles = {
+    backgroundColor: colors.surface || '#1A0F0A',
+    color: colors.text_muted || '#94A3B8',
+    borderTop: `1px solid ${colors.border || '#3D2318'}`,
+  };
 
-  const social =
-    restaurant?.social_links || {};
+  // 🔥 MAPEAR REDES SOCIAIS COM ÍCONES
+  const socialLinks = [
+    {
+      id: 'instagram',
+      url: restaurant?.social_links?.instagram,
+      icon: FaInstagram,
+      label: 'Instagram',
+    },
+    {
+      id: 'facebook',
+      url: restaurant?.social_links?.facebook,
+      icon: FaFacebook,
+      label: 'Facebook',
+    },
+    {
+      id: 'whatsapp',
+      url: restaurant?.social_links?.whatsapp,
+      icon: FaWhatsapp,
+      label: 'WhatsApp',
+      getHref: (url) => url ? `https://wa.me/${url.replace(/\D/g, '')}` : null,
+    },
+    {
+      id: 'tiktok',
+      url: restaurant?.social_links?.tiktok,
+      icon: FaTiktok,
+      label: 'TikTok',
+    },
+  ];
 
+  // Filtrar apenas redes com URL
+  const activeSocialLinks = socialLinks.filter(social => social.url);
+  
+   
 
-  const hasSocial =
-    social.instagram ||
-    social.facebook ||
-    social.website ||
-    social.whatsapp;
+  const getSocialHref = (social) => {
+    if (social.id === 'whatsapp' && social.url) {
+      // Remove tudo que não é número para o WhatsApp
+      const phone = social.url.replace(/\D/g, '');
+      return `https://wa.me/${phone}`;
+    }
+    return social.url;
+  };
 
-
-  function scrollToTop() {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  }
-
-
-  /*
-   * -----------------------------------------
-   * DARK
-   * -----------------------------------------
-   */
-
-  if (variant === "dark") {
-    return (
-      <footer
-        className="
-          mvqr-footer
-          mvqr-footer--dark
-        "
-      >
-        <div className="mvqr-footer__content">
-
-          <div className="mvqr-footer__identity">
-
-            <h2>
-              {restaurant?.name}
-            </h2>
-
-            {restaurant?.description && (
-              <p>
-                {restaurant.description}
-              </p>
-            )}
-
-          </div>
-
-
-          <div className="mvqr-footer__contact">
-
-            {restaurant?.address && (
-              <div>
-                <MapPin size={17} />
-                <span>
-                  {restaurant.address}
-                </span>
-              </div>
-            )}
-
-            {restaurant?.contact_phone && (
-              <div>
-                <Phone size={17} />
-                <span>
-                  {restaurant.contact_phone}
-                </span>
-              </div>
-            )}
-
-          </div>
-
-
-          <FooterSocials
-            social={social}
-            visible={hasSocial}
-          />
-
-        </div>
-
-        <FooterBottom
-          restaurant={restaurant}
-          year={year}
-          onTop={scrollToTop}
-        />
-      </footer>
-    );
-  }
-
-
-  /*
-   * -----------------------------------------
-   * MINIMAL
-   * -----------------------------------------
-   */
-
-  if (variant === "minimal") {
-    return (
-      <footer
-        className="
-          mvqr-footer
-          mvqr-footer--minimal
-        "
-      >
-        <div className="mvqr-footer__content">
-
-          <h2>
-            {restaurant?.name}
-          </h2>
-
-          <span>
-            © {year}
-          </span>
-
-        </div>
-      </footer>
-    );
-  }
-
-
-  /*
-   * -----------------------------------------
-   * SPLIT
-   * -----------------------------------------
-   */
-
-  if (variant === "split") {
-    return (
-      <footer
-        className="
-          mvqr-footer
-          mvqr-footer--split
-        "
-      >
-        <div className="mvqr-footer__split-left">
-
-          <span className="mvqr-footer__eyebrow">
-            Visit us
-          </span>
-
-          <h2>
-            {restaurant?.name}
-          </h2>
-
-          {restaurant?.description && (
-            <p>
-              {restaurant.description}
-            </p>
-          )}
-
-        </div>
-
-
-        <div className="mvqr-footer__split-right">
-
-          {restaurant?.address && (
-            <div>
-              <MapPin size={17} />
-              <span>
-                {restaurant.address}
-              </span>
-            </div>
-          )}
-
-          {restaurant?.contact_phone && (
-            <div>
-              <Phone size={17} />
-              <span>
-                {restaurant.contact_phone}
-              </span>
-            </div>
-          )}
-
-          <FooterSocials
-            social={social}
-            visible={hasSocial}
-          />
-
-        </div>
-
-
-        <FooterBottom
-          restaurant={restaurant}
-          year={year}
-          onTop={scrollToTop}
-        />
-
-      </footer>
-    );
-  }
-
-
-  /*
-   * -----------------------------------------
-   * ELEGANT
-   * -----------------------------------------
-   */
 
   return (
-    <footer
-      className="
-        mvqr-footer
-        mvqr-footer--elegant
-      "
+    <footer 
+      className={`restaurant-footer ${getFooterVariant()} ${getAlignment()}`}
+      style={footerStyles}
     >
-      <div className="mvqr-footer__content">
-
-        <span className="mvqr-footer__eyebrow">
-          {restaurant?.business_type || "Restaurant"}
-        </span>
-
-        <h2>
-          {restaurant?.name}
-        </h2>
-
-        {restaurant?.description && (
-          <p>
-            {restaurant.description}
-          </p>
-        )}
-
-
-        <div className="mvqr-footer__details">
-
+      <div className="footer-content">
+        
+        <div className="footer-contact">
           {restaurant?.address && (
-            <div>
-              <MapPin size={17} />
-              <span>
-                {restaurant.address}
-              </span>
-            </div>
+            <p><MapPin size={16} /> {restaurant.address}</p>
           )}
-
           {restaurant?.contact_phone && (
-            <div>
-              <Phone size={17} />
-              <span>
-                {restaurant.contact_phone}
-              </span>
-            </div>
+            <p><Phone size={16} /> {restaurant.contact_phone}</p>
           )}
-
+          {restaurant?.contact_email && (
+            <p><Mail size={16} /> {restaurant.contact_email}</p>
+          )}
         </div>
-
-
-        <FooterSocials
-          social={social}
-          visible={hasSocial}
-        />
-
+        
+        <div className="footer-social">
+          {activeSocialLinks.map((social) => {
+            const Icon = social.icon;
+            const href = getSocialHref(social);
+            return (
+              <a 
+                key={social.id}
+                href={href} 
+                target="_blank" 
+                rel="noreferrer"
+                aria-label={social.label}
+              >
+                <Icon size={18} />
+                {social.label}
+              </a>
+            );
+          })}
+        </div>
+        
+        <div className="footer-copyright">
+          <h1>{restaurant?.name}</h1>
+          <p>{restaurant?.business_type}</p>
+          <p>© 2026 Menu Virtual QR - Todos os direitos reservados</p>
+        </div>
       </div>
-
-
-      <FooterBottom
-        restaurant={restaurant}
-        year={year}
-        onTop={scrollToTop}
-      />
-
     </footer>
-  );
-}
-
-
-/*
- * =========================================
- * SOCIALS
- * =========================================
- */
-
-function FooterSocials({
-  social,
-  visible,
-}) {
-  if (!visible) {
-    return null;
-  }
-
-  return (
-    <div className="mvqr-footer__socials">
-
-      {social.instagram && (
-        <a
-          href={social.instagram}
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Instagram"
-        >
-          <Instagram size={18} />
-        </a>
-      )}
-
-      {social.facebook && (
-        <a
-          href={social.facebook}
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Facebook"
-        >
-          <Facebook size={18} />
-        </a>
-      )}
-
-      {social.website && (
-        <a
-          href={social.website}
-          target="_blank"
-          rel="noreferrer"
-          aria-label="Website"
-        >
-          <Globe size={18} />
-        </a>
-      )}
-
-      {social.whatsapp && (
-        <a
-          href={`https://wa.me/${String(
-            social.whatsapp
-          ).replace(/\D/g, "")}`}
-          target="_blank"
-          rel="noreferrer"
-          aria-label="WhatsApp"
-        >
-          <MessageCircle size={18} />
-        </a>
-      )}
-
-    </div>
-  );
-}
-
-
-/*
- * =========================================
- * FOOTER BOTTOM
- * =========================================
- */
-
-function FooterBottom({
-  restaurant,
-  year,
-  onTop,
-}) {
-  return (
-    <div className="mvqr-footer__bottom">
-
-      <small>
-        © {year} {restaurant?.name}
-      </small>
-
-      <small className="mvqr-footer__brand">
-        Menu Virtual QR
-      </small>
-
-      <button
-        type="button"
-        onClick={onTop}
-        className="mvqr-footer__top"
-        aria-label="Voltar ao topo"
-      >
-        <ArrowUpRight size={16} />
-      </button>
-
-    </div>
   );
 }

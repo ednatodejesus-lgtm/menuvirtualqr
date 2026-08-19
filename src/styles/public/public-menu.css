@@ -1,5 +1,299 @@
-@import "./hero.css";
-@import "./categories.css";
-@import "./product-grid.css";
-@import "./product-card.css";
-@import "./footer.css";
+/* ============================================================
+   PUBLIC MENU - ESTILOS BASE
+   ============================================================ */
+.mvqr-public-menu {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-background, #1A0F0A);
+  color: var(--color-text, #FFFFFF);
+  font-family: var(--font-body, Inter), sans-serif;
+}
+
+.menu-content {
+  max-width: var(--container-max-width, 1200px);
+  margin: 0 auto;
+  padding: 2rem;
+  width: 100%;
+  flex: 1;
+}
+
+/* ============================================================
+   ERROR SCREEN
+   ============================================================ */
+.mvqr-empty-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 2rem;
+  text-align: center;
+  background-color: #f8fafc;
+}
+
+.mvqr-error-card {
+  max-width: 400px;
+  padding: 2rem;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.mvqr-error-icon {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.mvqr-error-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 0.5rem;
+}
+
+.mvqr-error-message {
+  color: #64748b;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  margin-bottom: 1.5rem;
+}
+
+.mvqr-error-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1.5rem;
+  background-color: #8B4513;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.mvqr-error-button:hover {
+  background-color: #6b3410;
+}
+
+/* ============================================================
+   HERO VARIANTS
+   ============================================================ */
+[data-hero-variant="fullscreen"] {
+  min-height: 100vh !important;
+}
+
+[data-hero-variant="split"] {
+  min-height: 70vh !important;
+}
+
+[data-hero-variant="editorial"] {
+  min-height: 80vh !important;
+}
+
+[data-hero-variant="compact"] {
+  min-height: 40vh !important;
+}
+
+[data-visual-priority="image"] .hero-content {
+  max-width: 50%;
+}
+
+[data-visual-priority="content"] .hero-content {
+  max-width: 70%;
+}
+
+/* ============================================================
+   CATEGORY VARIANTS
+   ============================================================ */
+[data-categories-variant="tabs"] .category-tabs {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 2px solid var(--color-border, #3D2318);
+  padding-bottom: 0.5rem;
+}
+
+[data-categories-variant="pills"] .category-tabs {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+[data-categories-variant="pills"] .category-tab {
+  padding: 0.4rem 1.2rem;
+  border-radius: 20px;
+  border: 1px solid var(--color-border, #3D2318);
+}
+
+[data-categories-variant="floating"] .category-tabs {
+  display: flex;
+  gap: 0.5rem;
+  position: sticky;
+  top: 0;
+  padding: 0.5rem 1rem;
+  background: var(--color-background, #1A0F0A);
+  z-index: 10;
+}
+
+[data-categories-variant="horizontal"] .category-tabs {
+  display: flex;
+  gap: 1rem;
+  overflow-x: auto;
+  padding: 0.5rem 0;
+}
+
+[data-categories-variant="sidebar"] .category-tabs {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+/* ============================================================
+   MENU VARIANTS
+   ============================================================ */
+[data-menu-variant="grid"] .product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+[data-menu-variant="editorial-grid"] .product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+[data-menu-variant="list"] .product-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+[data-menu-variant="immersive"] .product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+[data-menu-variant="showcase"] .product-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+}
+
+/* ============================================================
+   FOOTER VARIANTS
+   ============================================================ */
+[data-footer-variant="minimal"] .restaurant-footer {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+[data-footer-variant="editorial"] .restaurant-footer {
+  padding: 2.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 2rem;
+}
+
+[data-footer-variant="immersive"] .restaurant-footer {
+  padding: 3rem;
+  background: var(--color-surface, #2C1810);
+  text-align: center;
+}
+
+[data-footer-variant="dark"] .restaurant-footer {
+  padding: 2rem;
+  background: var(--color-background, #1A0F0A);
+  border-top: 2px solid var(--color-border, #3D2318);
+}
+
+/* ============================================================
+   DENSITY VARIANTS
+   ============================================================ */
+[data-density="comfortable"] .product-grid {
+  gap: 2rem;
+}
+
+[data-density="compact"] .product-grid {
+  gap: 0.75rem;
+}
+
+[data-density="cinematic"] .product-grid {
+  gap: 3rem;
+}
+
+/* ============================================================
+   ANIMATIONS
+   ============================================================ */
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.mvqr-public-menu .hero-content {
+  animation: fadeInUp 0.8s ease-out;
+}
+
+.mvqr-public-menu .product-card {
+  animation: fadeInUp 0.6s ease-out;
+  animation-fill-mode: both;
+}
+
+.mvqr-public-menu .product-card:nth-child(1) { animation-delay: 0.05s; }
+.mvqr-public-menu .product-card:nth-child(2) { animation-delay: 0.1s; }
+.mvqr-public-menu .product-card:nth-child(3) { animation-delay: 0.15s; }
+.mvqr-public-menu .product-card:nth-child(4) { animation-delay: 0.2s; }
+.mvqr-public-menu .product-card:nth-child(5) { animation-delay: 0.25s; }
+.mvqr-public-menu .product-card:nth-child(6) { animation-delay: 0.3s; }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .menu-content {
+    padding: 1rem;
+  }
+  
+  [data-hero-variant="fullscreen"] .restaurant-hero {
+    min-height: 70vh !important;
+  }
+  
+  [data-hero-variant="split"] .restaurant-hero {
+    min-height: 50vh !important;
+  }
+  
+  [data-visual-priority="image"] .hero-content {
+    max-width: 90%;
+  }
+  
+  [data-visual-priority="content"] .hero-content {
+    max-width: 95%;
+  }
+  
+  [data-menu-variant="editorial-grid"] .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  }
+  
+  [data-menu-variant="showcase"] .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+  
+  [data-density="cinematic"] .product-grid {
+    gap: 1.5rem;
+  }
+}

@@ -1,27 +1,66 @@
-import { useEffect, useMemo } from "react";
+import React, { createContext, useContext, useMemo, useEffect } from 'react';
+import { resolveTheme, resolveColors, resolveFonts } from './index';
 
-import {
-  ThemeProvider as ThemeContextProvider,
-} from "../contexts/ThemeContext";
+const ThemeContext = createContext(null);
 
-import { applyTheme } from "./applyTheme";
-import { resolveTheme } from "./resolveTheme";
-
-export default function ThemeProvider({
-  theme,
-  children,
-}) {
-  const resolvedTheme = useMemo(() => {
-    return resolveTheme(theme || {});
-  }, [theme]);
-
+export function ThemeProvider({ theme: restaurantTheme, children }) {
+  // Resolver tema completo
+  const theme = useMemo(() => resolveTheme(restaurantTheme), [restaurantTheme]);
+  const colors = useMemo(() => resolveColors(theme), [theme]);
+  const fonts = useMemo(() => resolveFonts(theme), [theme]);
+  
   useEffect(() => {
-    applyTheme(resolvedTheme);
-  }, [resolvedTheme]);
+    // Aplicar CSS variables
+    const root = document.documentElement;
+    
+    // Cores
+    Object.entries(colors).forEach(([key, value]) => {
+      root.style.setProperty(key, value);
+    });
+    
+    // Data attributes para estilos
+    root.setAttribute('data-theme-variant', theme?.layout?.hero?.variant || 'centered');
+    root.setAttribute('data-menu-variant', theme?.layout?.menu?.variant || 'grid');
+    root.setAttribute('data-footer-variant', theme?.layout?.footer?.variant || 'minimal');
+    root.setAttribute('data-categories-variant', theme?.layout?.categories?.variant || 'tabs');
+    root.setAttribute('data-density', theme?.layout?.density || 'comfortable');
+    
+    // Limpeza
+    return () => {
+      Object.keys(colors).forEach((key) => {
+        root.style.removeProperty(key);
+      });
+      root.removeAttribute('data-theme-variant');
+      root.removeAttribute('data-menu-variant');
+      root.removeAttribute('data-footer-variant');
+      root.removeAttribute('data-categories-variant');
+      root.removeAttribute('data-density');
+    };
+  }, [colors, theme]);
+  
+  const value = useMemo(() => ({
+    theme,
+    colors,
+    fonts
+  }), [theme, colors, fonts]);
 
   return (
-    <ThemeContextProvider theme={resolvedTheme}>
+    <ThemeContext.Provider value={value}>
       {children}
-    </ThemeContextProvider>
+    </ThemeContext.Provider>
   );
 }
+
+export function useTheme() {
+  const context = useContext(ThemeContext);
+  
+  if (!context) {
+    throw new Error(
+      "useTheme must be used inside a ThemeProvider"
+    );
+  }
+  
+  return context;
+}
+
+export default ThemeContext;

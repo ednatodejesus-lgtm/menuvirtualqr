@@ -222,3 +222,472 @@
   background: var(--color-text);
   opacity: 0.5;
 }
+
+
+/* ============================================================
+   HERO - BASE
+   ============================================================ */
+.restaurant-hero {
+  position: relative;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  transition: all 0.3s ease;
+}
+
+/* Overlay padrão */
+.restaurant-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--color-overlay, rgba(0,0,0,0.5));
+  z-index: 1;
+}
+
+/* Conteúdo do Hero */
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 800px;
+  padding: 2rem;
+  color: var(--color-text, #FFFFFF);
+}
+
+.hero-title {
+  font-family: var(--font-heading, 'Playfair Display'), serif;
+  font-weight: var(--heading-weight, 700);
+  font-size: 3.5rem;
+  letter-spacing: var(--heading-letter-spacing, 0.02em);
+  line-height: 1.1;
+  margin: 0 0 0.5rem 0;
+  color: var(--color-text, #FFFFFF);
+  text-shadow: 0 2px 16px rgba(0,0,0,0.3);
+}
+
+.hero-subtitle {
+  font-family: var(--font-body, 'Inter'), sans-serif;
+  font-weight: var(--body-weight, 400);
+  font-size: 1.25rem;
+  letter-spacing: var(--body-letter-spacing, 0.01em);
+  line-height: 1.6;
+  margin: 0 0 1.5rem 0;
+  color: var(--color-text-muted, #94A3B8);
+  text-shadow: 0 1px 8px rgba(0,0,0,0.2);
+  max-width: 600px;
+}
+
+/* Ações do Hero */
+.hero-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.hero-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 2rem;
+  background: var(--color-primary, #8B4513);
+  color: #FFFFFF;
+  border: none;
+  border-radius: var(--radius-button, 8px);
+  font-family: var(--font-body, 'Inter'), sans-serif;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.hero-cta:hover {
+  background: var(--color-primary, #8B4513);
+  opacity: 0.85;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 16px rgba(139, 69, 19, 0.3);
+}
+
+.hero-secondary-cta {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.75rem 2rem;
+  background: transparent;
+  color: var(--color-text, #FFFFFF);
+  border: 2px solid var(--color-text, #FFFFFF);
+  border-radius: var(--radius-button, 8px);
+  font-family: var(--font-body, 'Inter'), sans-serif;
+  font-weight: 500;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.hero-secondary-cta:hover {
+  background: rgba(255,255,255,0.1);
+  transform: translateY(-2px);
+}
+
+/* ============================================================
+   VARIANT: FULLSCREEN
+   ============================================================ */
+.hero-fullscreen {
+  min-height: 100vh;
+  padding: 3rem 2rem;
+}
+
+.hero-fullscreen .hero-title {
+  font-size: 4rem;
+}
+
+.hero-fullscreen .hero-subtitle {
+  font-size: 1.5rem;
+}
+
+/* ============================================================
+   VARIANT: SPLIT
+   ============================================================ */
+.hero-split {
+  min-height: 70vh;
+  padding: 3rem 2rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 2rem;
+}
+
+.hero-split .hero-content {
+  max-width: 100%;
+  padding: 2rem;
+}
+
+.hero-split .hero-title {
+  font-size: 3rem;
+}
+
+.hero-split .hero-subtitle {
+  font-size: 1.1rem;
+}
+
+/* Lado da imagem no split (quando há imagem) */
+.hero-split .hero-image-side {
+  position: relative;
+  height: 100%;
+  min-height: 300px;
+  border-radius: var(--radius-card, 12px);
+  overflow: hidden;
+}
+
+.hero-split .hero-image-side img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ============================================================
+   VARIANT: CENTERED (PADRÃO)
+   ============================================================ */
+.hero-centered {
+  min-height: 60vh;
+  padding: 3rem 2rem;
+  text-align: center;
+}
+
+.hero-centered .hero-content {
+  text-align: center;
+}
+
+.hero-centered .hero-subtitle {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.hero-centered .hero-actions {
+  justify-content: center;
+}
+
+.hero-centered .hero-title {
+  font-size: 3.5rem;
+}
+
+/* ============================================================
+   VARIANT: EDITORIAL
+   ============================================================ */
+.hero-editorial {
+  min-height: 80vh;
+  padding: 3rem 2rem;
+  position: relative;
+}
+
+.hero-editorial .hero-content {
+  max-width: 700px;
+  padding: 3rem;
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-card, 12px);
+  border: 1px solid rgba(255,255,255,0.1);
+}
+
+.hero-editorial .hero-title {
+  font-size: 3.2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hero-editorial .hero-subtitle {
+  font-size: 1.1rem;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+.hero-editorial .hero-cta {
+  background: var(--color-accent, #DAA520);
+  color: var(--color-text-inverse, #1A0F0A);
+}
+
+.hero-editorial .hero-cta:hover {
+  background: var(--color-accent, #DAA520);
+  opacity: 0.85;
+}
+
+/* ============================================================
+   VARIANT: COMPACT
+   ============================================================ */
+.hero-compact {
+  min-height: 40vh;
+  padding: 2rem 1.5rem;
+}
+
+.hero-compact .hero-title {
+  font-size: 2.2rem;
+}
+
+.hero-compact .hero-subtitle {
+  font-size: 1rem;
+  max-width: 500px;
+}
+
+.hero-compact .hero-cta {
+  padding: 0.5rem 1.5rem;
+  font-size: 0.9rem;
+}
+
+.hero-compact .hero-secondary-cta {
+  padding: 0.5rem 1.5rem;
+  font-size: 0.9rem;
+}
+
+/* ============================================================
+   VISUAL PRIORITY
+   ============================================================ */
+/* Prioridade: Imagem (content com menor destaque) */
+[data-visual-priority="image"] .hero-content {
+  max-width: 50%;
+}
+
+[data-visual-priority="image"] .hero-title {
+  font-size: 2.5rem;
+}
+
+/* Prioridade: Conteúdo (imagem como fundo) */
+[data-visual-priority="content"] .hero-content {
+  max-width: 70%;
+}
+
+[data-visual-priority="content"] .hero-title {
+  font-size: 3.5rem;
+}
+
+/* ============================================================
+   IMAGE TREATMENT
+   ============================================================ */
+/* Cinematográfico - overlay mais forte, contraste alto */
+[data-hero-treatment="cinematic"]::before {
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.7) 0%,
+    rgba(0,0,0,0.3) 40%,
+    rgba(0,0,0,0.7) 100%
+  );
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 1024px) {
+  .hero-split {
+    grid-template-columns: 1fr;
+    min-height: 60vh;
+  }
+  
+  .hero-split .hero-image-side {
+    min-height: 200px;
+    order: -1;
+  }
+  
+  .hero-fullscreen .hero-title {
+    font-size: 3.5rem;
+  }
+  
+  .hero-editorial .hero-content {
+    max-width: 90%;
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-title {
+    font-size: 2.5rem !important;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem !important;
+  }
+  
+  .hero-fullscreen {
+    min-height: 80vh;
+  }
+  
+  .hero-fullscreen .hero-title {
+    font-size: 2.8rem !important;
+  }
+  
+  .hero-centered .hero-title {
+    font-size: 2.8rem !important;
+  }
+  
+  .hero-editorial {
+    min-height: 70vh;
+  }
+  
+  .hero-editorial .hero-title {
+    font-size: 2.5rem !important;
+  }
+  
+  .hero-editorial .hero-content {
+    padding: 1.5rem;
+  }
+  
+  .hero-compact {
+    min-height: 30vh;
+  }
+  
+  .hero-compact .hero-title {
+    font-size: 1.8rem !important;
+  }
+  
+  .hero-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .hero-cta,
+  .hero-secondary-cta {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  [data-visual-priority="image"] .hero-content,
+  [data-visual-priority="content"] .hero-content {
+    max-width: 95%;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-fullscreen {
+    min-height: 70vh;
+    padding: 2rem 1rem;
+  }
+  
+  .hero-fullscreen .hero-title {
+    font-size: 2.2rem !important;
+  }
+  
+  .hero-editorial .hero-content {
+    padding: 1rem;
+  }
+  
+  .hero-editorial .hero-title {
+    font-size: 2rem !important;
+  }
+  
+  .hero-split {
+    min-height: 50vh;
+  }
+  
+  .hero-compact .hero-title {
+    font-size: 1.5rem !important;
+  }
+}
+
+/* ============================================================
+   ANIMAÇÕES
+   ============================================================ */
+@keyframes heroFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.restaurant-hero .hero-content {
+  animation: heroFadeIn 0.8s ease-out;
+}
+
+@keyframes heroScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(1.05);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.restaurant-hero .hero-image-side img {
+  animation: heroScaleIn 1s ease-out;
+}
+
+/* ============================================================
+   SCROLL INDICATOR (opcional)
+   ============================================================ */
+.hero-scroll-indicator {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  color: var(--color-text, #FFFFFF);
+  opacity: 0.6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  animation: bounceDown 2s ease-in-out infinite;
+}
+
+@keyframes bounceDown {
+  0%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(8px);
+  }
+}
