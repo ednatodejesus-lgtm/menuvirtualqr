@@ -1,12 +1,12 @@
 import {
     useEffect,
-    useState
+    useState,
+    useRef
 } from "react";
 
 import {
     FaImage,
     FaPalette,
-    FaFont,
     FaEye,
     FaSave,
     FaSpinner,
@@ -17,25 +17,27 @@ import {
     FaTh,
     FaList,
     FaSquare,
-    FaGlobe
+    FaGlobe,
+    FaUpload,
+    FaTrash,
+    FaRobot,
+    FaUndo
 } from 'react-icons/fa';
-
 
 import {
     Layout,
-    Layers,
-    Grid,
-    Menu,
-    Home,
     Settings,
     Palette,
-    Type,
-    Image,
     Eye,
     Save,
     Loader2,
     CheckCircle2,
-    AlertTriangle
+    AlertTriangle,
+    Upload,
+    Trash2,
+    Paintbrush,
+    Sparkles,
+    RotateCcw
 } from 'lucide-react';
 
 import Card from "../ui/Card";
@@ -46,11 +48,14 @@ import Button from "../ui/Button";
 import {
     useAuth
 } from "../../../hooks/useAuth";
+import { useColorSuggestions } from '../../../hooks/useColorSuggestions';
 
 import {
     getRestaurantSettings,
     updateRestaurantSettings
 } from "../../../services/restaurantSettingsService";
+
+import { supabase } from "../../../services/supabase";
 
 // ============================================================
 // CONFIGURAÇÕES DOS COMPONENTES
@@ -136,6 +141,62 @@ const PRICE_EMPHASIS = [
 ];
 
 // ============================================================
+// CORES PREDEFINIDAS
+// ============================================================
+
+const PREDEFINED_COLORS = [
+    '#E63946', '#F4A261', '#E9C46A', '#2A9D8F', '#264653',
+    '#8B4513', '#DAA520', '#1A0F0A', '#2C1810', '#3D2318',
+    '#DC3545', '#FFC107', '#28A745', '#17A2B8', '#6F42C1',
+    '#E83E8C', '#FD7E14', '#20C997', '#0DCAF0', '#6610F2',
+    '#FFFFFF', '#F8F9FA', '#E9ECEF', '#DEE2E6', '#CED4DA',
+    '#ADB5BD', '#6C757D', '#495057', '#343A40', '#212529',
+    '#0D0D0D', '#1A1A1A', '#2C2C2C', '#3D3D3D', '#4D4D4D',
+];
+
+const FONT_OPTIONS = [
+    { value: 'Inter', label: 'Inter' },
+    { value: 'Playfair Display', label: 'Playfair Display' },
+    { value: 'Lato', label: 'Lato' },
+    { value: 'Montserrat', label: 'Montserrat' },
+    { value: 'Open Sans', label: 'Open Sans' },
+    { value: 'Roboto', label: 'Roboto' },
+    { value: 'Poppins', label: 'Poppins' },
+    { value: 'Nunito', label: 'Nunito' },
+    { value: 'Bebas Neue', label: 'Bebas Neue' },
+    { value: 'Syne', label: 'Syne' },
+    { value: 'DM Sans', label: 'DM Sans' },
+    { value: 'Space Grotesk', label: 'Space Grotesk' },
+];
+
+// ============================================================
+// FUNÇÃO DE CONTRASTE
+// ============================================================
+
+function getContrastRatio(color1, color2) {
+    const getLuminance = (hex) => {
+        const rgb = parseInt(hex.replace('#', ''), 16);
+        const r = ((rgb >> 16) & 0xFF) / 255;
+        const g = ((rgb >> 8) & 0xFF) / 255;
+        const b = (rgb & 0xFF) / 255;
+        const [rs, gs, bs] = [r, g, b].map(c => 
+            c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4)
+        );
+        return 0.2126 * rs + 0.7152 * gs + 0.0722 * bs;
+    };
+    
+    const l1 = getLuminance(color1);
+    const l2 = getLuminance(color2);
+    const ratio = (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
+    return ratio;
+}
+
+function isContrastValid(textColor, bgColor) {
+    const ratio = getContrastRatio(textColor, bgColor);
+    return ratio >= 4.5; // WCAG AA
+}
+
+// ============================================================
 // COMPONENTE PRINCIPAL
 // ============================================================
 
@@ -145,6 +206,17 @@ export default function AppearanceSettings() {
     const [saving, setSaving] = useState(false);
     const [success, setSuccess] = useState(false);
     const [activeTab, setActiveTab] = useState('hero');
+    const [uploadingImage, setUploadingImage] = useState(false);
+    const fileInputRef = useRef(null);
+
+    // 🔥 Estado para cores originais (reverter)
+    const [originalColors, setOriginalColors] = useState(null);
+
+    // 🔥 CORRIGIDO: Remover o useState duplicado e usar apenas o do hook
+    const { getSuggestions, loading: suggestionsLoading } = useColorSuggestions();
+
+    // 🔥 Estado para controlar se estamos na tab de cores
+    const isColorsTab = activeTab === 'colors';
 
     const [form, setForm] = useState({
         // Hero
@@ -183,13 +255,75 @@ export default function AppearanceSettings() {
         // Layout
         density: "compact",
         content_width: "standard",
+
+        // Cores
+        color_primary: "#8B4513",
+        color_secondary: "#DAA520",
+        color_accent: "#F5DEB3",
+        color_background: "#1A0F0A",
+        color_surface: "#2C1810",
+        color_text: "#FFFFFF",
+        color_text_muted: "#94A3B8",
+
+        // Fontes
+        font_heading: "Playfair Display",
+        font_body: "Inter",
+        font_accent: "Lato",
     });
 
+    const [contrastErrors, setContrastErrors] = useState([]);
+
     const restaurantId = profile?.restaurant_id;
+    const businessType = profile?.business_type || 'default';
 
     useEffect(() => {
         loadAppearance();
     }, [restaurantId]);
+
+    // 🔥 VALIDAR CONTRASTE - APENAS NA TAB DE CORES
+    useEffect(() => {
+        if (isColorsTab) {
+            validateContrast();
+        } else {
+            setContrastErrors([]);
+        }
+    }, [
+        isColorsTab,
+        form.color_background,
+        form.color_text,
+        form.color_text_muted,
+        form.color_primary,
+        form.color_secondary,
+        form.color_accent,
+        form.color_surface
+    ]);
+
+    function validateContrast() {
+        const errors = [];
+        const bg = form.color_background;
+        const surface = form.color_surface;
+
+        // Texto vs Fundo
+        if (!isContrastValid(form.color_text, bg)) {
+            errors.push('O texto principal tem baixo contraste com o fundo.');
+        }
+        if (!isContrastValid(form.color_text_muted, bg)) {
+            errors.push('O texto secundário tem baixo contraste com o fundo.');
+        }
+        if (!isContrastValid(form.color_primary, bg)) {
+            errors.push('A cor primária tem baixo contraste com o fundo.');
+        }
+        if (!isContrastValid(form.color_secondary, bg)) {
+            errors.push('A cor secundária tem baixo contraste com o fundo.');
+        }
+
+        // Texto vs Surface (cards)
+        if (!isContrastValid(form.color_text, surface)) {
+            errors.push('O texto principal tem baixo contraste com os cards.');
+        }
+
+        setContrastErrors(errors);
+    }
 
     async function loadAppearance() {
         if (!restaurantId) return;
@@ -197,6 +331,20 @@ export default function AppearanceSettings() {
         try {
             const data = await getRestaurantSettings(restaurantId);
             const theme = data.theme || {};
+            const colors = theme.visual?.colors || {};
+            const typography = theme.visual?.typography || {};
+
+            const loadedColors = {
+                color_primary: colors.primary || "#8B4513",
+                color_secondary: colors.secondary || "#DAA520",
+                color_accent: colors.accent || "#F5DEB3",
+                color_background: colors.background || "#1A0F0A",
+                color_surface: colors.surface || "#2C1810",
+                color_text: colors.text || "#FFFFFF",
+                color_text_muted: colors.text_muted || "#94A3B8",
+            };
+
+            setOriginalColors(loadedColors);
 
             setForm({
                 hero_title: theme.hero?.title || "",
@@ -229,6 +377,12 @@ export default function AppearanceSettings() {
 
                 density: theme.layout?.density || "compact",
                 content_width: theme.layout?.content_width || "standard",
+
+                ...loadedColors,
+
+                font_heading: typography.heading || "Playfair Display",
+                font_body: typography.body || "Inter",
+                font_accent: typography.accent || "Lato",
             });
         } catch (error) {
             console.error("Erro ao carregar aparência:", error);
@@ -254,51 +408,177 @@ export default function AppearanceSettings() {
     }
 
     function buildTheme() {
-        return {
-            hero: {
-                title: form.hero_title,
-                subtitle: form.hero_subtitle,
-                cta_text: form.hero_cta_text,
-                secondary_cta: form.hero_secondary_cta,
-                image_url: form.hero_image_url,
-                image_treatment: form.hero_image_treatment,
-                visual_priority: form.hero_visual_priority,
-                overlay_strength: form.hero_overlay_strength,
+    return {
+        hero: {
+            title: form.hero_title,
+            subtitle: form.hero_subtitle,
+            cta_text: form.hero_cta_text,
+            secondary_cta: form.hero_secondary_cta,
+            image_url: form.hero_image_url,
+            image_treatment: form.hero_image_treatment,
+            visual_priority: form.hero_visual_priority,
+            overlay_strength: form.hero_overlay_strength,
+        },
+        layout: {
+            // ... layout configs ...
+        },
+        visual: {
+            colors: {
+                primary: form.color_primary,
+                secondary: form.color_secondary,
+                accent: form.color_accent,
+                background: form.color_background,
+                surface: form.color_surface,
+                text: form.color_text,
+                text_muted: form.color_text_muted,
+                // 🔥 ADICIONAR CORES DO CARD
+                card: form.color_surface, // Usa a mesma cor da superfície
+                border: form.color_border || '#3D2318',
+                overlay: 'rgba(0,0,0,0.6)',
             },
-            layout: {
-                hero: {
-                    height: form.hero_height,
-                    variant: form.hero_variant,
-                    alignment: form.hero_alignment,
-                },
-                navigation: {
-                    variant: form.nav_variant,
-                    position: form.nav_position,
-                },
-                categories: {
-                    variant: form.categories_variant,
-                    position: form.categories_position,
-                },
-                menu: {
-                    variant: form.menu_variant,
-                    card_variant: form.menu_card_variant,
-                    image_ratio: form.menu_image_ratio,
-                    price_emphasis: form.menu_price_emphasis,
-                    image_priority: form.menu_image_priority,
-                    description_style: form.menu_description_style,
-                },
-                footer: {
-                    variant: form.footer_variant,
-                    alignment: form.footer_alignment,
-                },
-                density: form.density,
-                content_width: form.content_width,
+            typography: {
+                heading: form.font_heading,
+                body: form.font_body,
+                accent: form.font_accent,
             }
-        };
+        }
+    };
+}
+
+    // 🔥 FUNÇÃO PARA SUGESTÃO DE CORES POR IA (CORRIGIDA)
+    async function getAIColorSuggestions() {
+        try {
+            // Buscar dados do restaurante
+            const { data: restaurantData } = await supabase
+                .from('restaurants')
+                .select('name, business_type, description')
+                .eq('id', restaurantId)
+                .single();
+
+            const result = await getSuggestions({
+                businessType: restaurantData?.business_type || 'restaurant',
+                name: restaurantData?.name || '',
+                description: restaurantData?.description || ''
+            });
+
+            if (result?.colors) {
+                setForm({
+                    ...form,
+                    color_primary: result.colors.primary,
+                    color_secondary: result.colors.secondary,
+                    color_accent: result.colors.accent,
+                    color_background: result.colors.background,
+                    color_surface: result.colors.surface,
+                    color_text: result.colors.text,
+                    color_text_muted: result.colors.text_muted,
+                    ...(result.typography && {
+                        font_heading: result.typography.heading || form.font_heading,
+                        font_body: result.typography.body || form.font_body,
+                        font_accent: result.typography.accent || form.font_accent,
+                    })
+                });
+            }
+        } catch (error) {
+            console.error('Erro ao obter sugestões de cores:', error);
+            alert('Erro ao obter sugestões de cores. Tente novamente.');
+        }
+    }
+
+    // 🔥 FUNÇÃO PARA REVERTER CORES ORIGINAIS
+    function revertColors() {
+        if (originalColors) {
+            setForm({
+                ...form,
+                color_primary: originalColors.color_primary || '#8B4513',
+                color_secondary: originalColors.color_secondary || '#DAA520',
+                color_accent: originalColors.color_accent || '#F5DEB3',
+                color_background: originalColors.color_background || '#1A0F0A',
+                color_surface: originalColors.color_surface || '#2C1810',
+                color_text: originalColors.color_text || '#FFFFFF',
+                color_text_muted: originalColors.color_text_muted || '#94A3B8',
+            });
+        }
+    }
+
+    // 🔥 UPLOAD DE IMAGEM DO HERO
+    async function handleImageUpload(e) {
+        const file = e.target.files?.[0];
+        if (!file) return;
+
+        if (!file.type.startsWith('image/')) {
+            alert('Por favor, selecione uma imagem válida.');
+            return;
+        }
+
+        if (file.size > 5 * 1024 * 1024) {
+            alert('A imagem deve ter no máximo 5MB.');
+            return;
+        }
+
+        setUploadingImage(true);
+
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${restaurantId}-${Date.now()}.${fileExt}`;
+            const filePath = `${restaurantId}/${fileName}`;
+
+            const { error: uploadError } = await supabase.storage
+                .from('hero')
+                .upload(filePath, file, {
+                    cacheControl: '3600',
+                    upsert: true,
+                });
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('hero')
+                .getPublicUrl(filePath);
+
+            setForm({
+                ...form,
+                hero_image_url: publicUrl
+            });
+
+            alert('Imagem do Hero atualizada com sucesso!');
+        } catch (error) {
+            console.error('Erro ao enviar imagem:', error);
+            alert('Erro ao enviar imagem. Tente novamente.');
+        } finally {
+            setUploadingImage(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
+    }
+
+    // 🔥 USAR LOGO DO RESTAURANTE COMO IMAGEM DO HERO
+    async function useLogoAsHero() {
+        try {
+            const data = await getRestaurantSettings(restaurantId);
+            if (data.logo_url) {
+                setForm({
+                    ...form,
+                    hero_image_url: data.logo_url
+                });
+            } else {
+                alert('O restaurante não possui um logo configurado.');
+            }
+        } catch (error) {
+            console.error('Erro ao carregar logo:', error);
+        }
     }
 
     async function handleSubmit(e) {
         e.preventDefault();
+
+        // Validar contraste apenas se estiver na tab de cores
+        if (isColorsTab && contrastErrors.length > 0) {
+            const confirmSave = window.confirm(
+                `Existem problemas de contraste:\n\n${contrastErrors.join('\n')}\n\nDeseja continuar mesmo assim?`
+            );
+            if (!confirmSave) return;
+        }
 
         try {
             setSaving(true);
@@ -308,6 +588,17 @@ export default function AppearanceSettings() {
 
             await updateRestaurantSettings(restaurantId, {
                 theme: theme
+            });
+
+            // Atualizar cores originais após salvar
+            setOriginalColors({
+                color_primary: form.color_primary,
+                color_secondary: form.color_secondary,
+                color_accent: form.color_accent,
+                color_background: form.color_background,
+                color_surface: form.color_surface,
+                color_text: form.color_text,
+                color_text_muted: form.color_text_muted,
             });
 
             setSuccess(true);
@@ -320,13 +611,13 @@ export default function AppearanceSettings() {
         }
     }
 
-    // 🔥 RENDERIZAR TABS - CORRIGIDO COM ÍCONES DO LUCIDE
+    // 🔥 RENDERIZAR TABS 
     function renderTabs() {
         const tabs = [
             { id: 'hero', label: 'Hero', icon: Eye },
             { id: 'menu', label: 'Menu', icon: Layout },
             { id: 'footer', label: 'Footer', icon: Palette },
-            { id: 'advanced', label: 'Avançado', icon: Settings },
+            { id: 'colors', label: 'Cores e Fontes', icon: Paintbrush },
         ];
 
         return (
@@ -369,7 +660,7 @@ export default function AppearanceSettings() {
         );
     }
 
-    //  RENDERIZAR CONTEÚDO DAS TABS
+    // 🔥 RENDERIZAR CONTEÚDO DAS TABS
     function renderTabContent() {
         switch (activeTab) {
             case 'hero':
@@ -378,14 +669,16 @@ export default function AppearanceSettings() {
                 return renderMenuTab();
             case 'footer':
                 return renderFooterTab();
-            case 'advanced':
-                return renderAdvancedTab();
+            case 'colors':
+                return renderColorsTab();
             default:
                 return null;
         }
     }
 
-    //  TAB: HERO
+    // ============================================================
+    // TAB: HERO
+    // ============================================================
     function renderHeroTab() {
         return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -428,13 +721,107 @@ export default function AppearanceSettings() {
                     />
 
                     <div style={{ gridColumn: '1 / -1' }}>
-                        <Input
-                            label="URL da Imagem do Hero"
-                            name="hero_image_url"
-                            value={form.hero_image_url}
-                            onChange={handleChange}
-                            placeholder="https://images.unsplash.com/..."
-                        />
+                        <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#334155', display: 'block', marginBottom: '0.25rem' }}>
+                            Imagem do Hero
+                        </label>
+                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                            <Input
+                                name="hero_image_url"
+                                value={form.hero_image_url}
+                                onChange={handleChange}
+                                placeholder="https://images.unsplash.com/..."
+                                style={{ flex: 1 }}
+                            />
+                            <input
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                onChange={handleImageUpload}
+                                style={{ display: 'none' }}
+                                id="hero-upload"
+                            />
+                            <label
+                                htmlFor="hero-upload"
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    padding: '0.5rem 1rem',
+                                    background: '#f1f5f9',
+                                    border: '1px solid #e2e8f0',
+                                    borderRadius: '8px',
+                                    cursor: uploadingImage ? 'not-allowed' : 'pointer',
+                                    fontSize: '0.875rem',
+                                    fontWeight: '500',
+                                    color: '#475569',
+                                    opacity: uploadingImage ? 0.5 : 1
+                                }}
+                            >
+                                {uploadingImage ? (
+                                    <Loader2 size={16} className="animate-spin" />
+                                ) : (
+                                    <Upload size={16} />
+                                )}
+                                {uploadingImage ? 'Enviando...' : 'Upload'}
+                            </label>
+                            <button
+                                type="button"
+                                onClick={useLogoAsHero}
+                                style={{
+                                    display: 'inline-flex',
+                                    alignItems: 'center',
+                                    gap: '0.5rem',
+                                    padding: '0.5rem 1rem',
+                                    background: '#fef3e8',
+                                    border: '1px solid #fed7aa',
+                                    borderRadius: '8px',
+                                    cursor: 'pointer',
+                                    fontSize: '0.875rem',
+                                    fontWeight: '500',
+                                    color: '#8B4513'
+                                }}
+                            >
+                                <FaImage size={16} />
+                                Usar Logo
+                            </button>
+                            {form.hero_image_url && (
+                                <button
+                                    type="button"
+                                    onClick={() => setForm({ ...form, hero_image_url: '' })}
+                                    style={{
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '0.5rem',
+                                        padding: '0.5rem 1rem',
+                                        background: '#fee2e2',
+                                        border: '1px solid #fecaca',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        fontSize: '0.875rem',
+                                        fontWeight: '500',
+                                        color: '#ef4444'
+                                    }}
+                                >
+                                    <Trash2 size={16} />
+                                    Remover
+                                </button>
+                            )}
+                        </div>
+                        {form.hero_image_url && (
+                            <div style={{ marginTop: '0.5rem' }}>
+                                <img
+                                    src={form.hero_image_url}
+                                    alt="Preview do Hero"
+                                    style={{
+                                        maxWidth: '100%',
+                                        maxHeight: '150px',
+                                        borderRadius: '8px',
+                                        objectFit: 'cover',
+                                        border: '1px solid #e2e8f0'
+                                    }}
+                                />
+                            </div>
+                        )}
                     </div>
 
                     <Select
@@ -512,7 +899,9 @@ export default function AppearanceSettings() {
         );
     }
 
+    // ============================================================
     // TAB: MENU
+    // ============================================================
     function renderMenuTab() {
         return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -622,7 +1011,9 @@ export default function AppearanceSettings() {
         );
     }
 
-    // 🔥 TAB: FOOTER
+    // ============================================================
+    // TAB: FOOTER
+    // ============================================================
     function renderFooterTab() {
         return (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -672,46 +1063,386 @@ export default function AppearanceSettings() {
         );
     }
 
-    // 🔥 TAB: AVANÇADO
-    function renderAdvancedTab() {
-        return (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <h3 style={{ fontSize: '1rem', fontWeight: '600', color: '#0f172a' }}>
-                    <Settings size={18} style={{ marginRight: '0.5rem' }} />
-                    Configurações Avançadas
-                </h3>
+    // ============================================================
+    // TAB: CORES E FONTES
+    // ============================================================
+    function renderColorsTab() {
+        const businessTypeLabel = {
+            'restaurant': 'Restaurante',
+            'fast-food': 'Fast-Food',
+            'pizza': 'Pizzaria',
+            'sushi': 'Sushi',
+            'cafe': 'Café',
+            'bar': 'Bar',
+            'hotel': 'Hotel',
+            'spa': 'Spa',
+            'bakery': 'Padaria',
+            'default': 'Restaurante'
+        }[businessType] || 'Restaurante';
 
-                <div style={{
-                    padding: '1rem',
-                    backgroundColor: '#fef3c7',
-                    borderRadius: '8px',
-                    border: '1px solid #fcd34d',
-                    marginBottom: '1rem'
-                }}>
-                    <p style={{ fontSize: '0.875rem', color: '#92400e' }}>
-                        ⚠️ Estas configurações são avançadas. Altere apenas se souber o que está fazendo.
-                    </p>
+        return (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '0.5rem' }}>
+                    <h3 style={{ fontSize: '1rem', fontWeight: '600', color: '#0f172a', margin: 0 }}>
+                        <FaPaintBrush style={{ marginRight: '0.5rem' }} />
+                        Cores e Fontes
+                    </h3>
+                    
+                    <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                        {/* 🔥 BOTÃO IA - CORRIGIDO: usando suggestionsLoading */}
+                        <button
+                            type="button"
+                            onClick={getAIColorSuggestions}
+                            disabled={suggestionsLoading}
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.4rem 1rem',
+                                background: '#8B4513',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                cursor: suggestionsLoading ? 'not-allowed' : 'pointer',
+                                fontSize: '0.8rem',
+                                fontWeight: '500',
+                                opacity: suggestionsLoading ? 0.6 : 1,
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            {suggestionsLoading ? (
+                                <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                                <Sparkles size={14} />
+                            )}
+                            {suggestionsLoading ? 'A sugerir...' : 'Sugestão IA'}
+                        </button>
+
+                        {/* 🔥 BOTÃO REVERTER */}
+                        <button
+                            type="button"
+                            onClick={revertColors}
+                            disabled={!originalColors}
+                            style={{
+                                display: 'inline-flex',
+                                alignItems: 'center',
+                                gap: '0.5rem',
+                                padding: '0.4rem 1rem',
+                                background: '#f1f5f9',
+                                color: '#475569',
+                                border: '1px solid #e2e8f0',
+                                borderRadius: '8px',
+                                cursor: originalColors ? 'pointer' : 'not-allowed',
+                                fontSize: '0.8rem',
+                                fontWeight: '500',
+                                opacity: originalColors ? 1 : 0.5,
+                                transition: 'all 0.2s'
+                            }}
+                        >
+                            <RotateCcw size={14} />
+                            Reverter
+                        </button>
+                    </div>
                 </div>
 
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                    <div style={{ gridColumn: '1 / -1' }}>
-                        <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#334155', display: 'block', marginBottom: '0.25rem' }}>
-                            Preview do JSON do Tema
-                        </label>
-                        <pre style={{
-                            background: '#1e293b',
-                            color: '#e2e8f0',
-                            padding: '1rem',
-                            borderRadius: '8px',
-                            fontSize: '0.75rem',
-                            overflow: 'auto',
-                            maxHeight: '300px',
-                            fontFamily: 'monospace',
-                            whiteSpace: 'pre-wrap'
-                        }}>
-                            {JSON.stringify(buildTheme(), null, 2)}
-                        </pre>
+                <p style={{ color: '#64748b', fontSize: '0.875rem', margin: 0 }}>
+                    Tipo de negócio: <strong>{businessTypeLabel}</strong>
+                </p>
+
+                {/* 🔥 AVISO DE CONTRASTE (APENAS AQUI) */}
+                {contrastErrors.length > 0 && (
+                    <div style={{
+                        padding: '1rem',
+                        backgroundColor: '#fef3c7',
+                        borderRadius: '8px',
+                        border: '1px solid #fcd34d',
+                        display: 'flex',
+                        alignItems: 'flex-start',
+                        gap: '0.5rem'
+                    }}>
+                        <AlertTriangle size={18} color="#92400e" style={{ marginTop: '0.15rem' }} />
+                        <div>
+                            <p style={{ fontWeight: '600', color: '#92400e', margin: '0 0 0.25rem 0' }}>
+                                Problemas de contraste detectados:
+                            </p>
+                            <ul style={{ margin: '0', paddingLeft: '1.25rem', color: '#92400e', fontSize: '0.875rem' }}>
+                                {contrastErrors.map((error, index) => (
+                                    <li key={index}>{error}</li>
+                                ))}
+                            </ul>
+                        </div>
                     </div>
+                )}
+
+                {/* 🔥 PREVIEW DE CORES */}
+                <div style={{
+                    padding: '1rem',
+                    background: form.color_background,
+                    borderRadius: '8px',
+                    border: '1px solid #e2e8f0'
+                }}>
+                    <p style={{ fontSize: '0.75rem', color: form.color_text_muted, marginBottom: '0.5rem' }}>
+                        Preview do tema atual
+                    </p>
+                    <div style={{
+                        display: 'flex',
+                        gap: '1rem',
+                        flexWrap: 'wrap',
+                        alignItems: 'center'
+                    }}>
+                        <span style={{
+                            padding: '0.25rem 0.75rem',
+                            background: form.color_primary,
+                            color: form.color_text,
+                            borderRadius: '4px',
+                            fontSize: '0.75rem'
+                        }}>
+                            Primary
+                        </span>
+                        <span style={{
+                            padding: '0.25rem 0.75rem',
+                            background: form.color_secondary,
+                            color: form.color_text,
+                            borderRadius: '4px',
+                            fontSize: '0.75rem'
+                        }}>
+                            Secondary
+                        </span>
+                        <span style={{
+                            padding: '0.25rem 0.75rem',
+                            background: form.color_accent,
+                            color: form.color_background,
+                            borderRadius: '4px',
+                            fontSize: '0.75rem'
+                        }}>
+                            Accent
+                        </span>
+                        <span style={{
+                            padding: '0.25rem 0.75rem',
+                            background: form.color_text,
+                            color: form.color_background,
+                            borderRadius: '4px',
+                            fontSize: '0.75rem'
+                        }}>
+                            Texto
+                        </span>
+                        <span style={{
+                            padding: '0.25rem 0.75rem',
+                            background: form.color_text_muted,
+                            color: form.color_background,
+                            borderRadius: '4px',
+                            fontSize: '0.75rem'
+                        }}>
+                            Texto Sec.
+                        </span>
+                    </div>
+                    <div style={{
+                        marginTop: '0.5rem',
+                        padding: '0.5rem',
+                        background: form.color_surface,
+                        borderRadius: '4px',
+                        border: `1px solid ${form.color_border || '#3D2318'}`
+                    }}>
+                        <p style={{ color: form.color_text, fontSize: '0.75rem', margin: 0 }}>
+                            Card preview - {form.font_body}
+                        </p>
+                    </div>
+                </div>
+
+                {/* 🔥 CORES */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                        <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#334155', display: 'block', marginBottom: '0.5rem' }}>
+                            Cores do Tema
+                        </label>
+                    </div>
+
+                    <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: '500', color: '#64748b' }}>
+                            Primária
+                        </label>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <input
+                                type="color"
+                                name="color_primary"
+                                value={form.color_primary}
+                                onChange={handleChange}
+                                style={{ width: '40px', height: '40px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer' }}
+                            />
+                            <Input
+                                name="color_primary"
+                                value={form.color_primary}
+                                onChange={handleChange}
+                                placeholder="#8B4513"
+                                style={{ flex: 1 }}
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: '500', color: '#64748b' }}>
+                            Secundária
+                        </label>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <input
+                                type="color"
+                                name="color_secondary"
+                                value={form.color_secondary}
+                                onChange={handleChange}
+                                style={{ width: '40px', height: '40px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer' }}
+                            />
+                            <Input
+                                name="color_secondary"
+                                value={form.color_secondary}
+                                onChange={handleChange}
+                                placeholder="#DAA520"
+                                style={{ flex: 1 }}
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: '500', color: '#64748b' }}>
+                            Destaque (Accent)
+                        </label>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <input
+                                type="color"
+                                name="color_accent"
+                                value={form.color_accent}
+                                onChange={handleChange}
+                                style={{ width: '40px', height: '40px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer' }}
+                            />
+                            <Input
+                                name="color_accent"
+                                value={form.color_accent}
+                                onChange={handleChange}
+                                placeholder="#F5DEB3"
+                                style={{ flex: 1 }}
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: '500', color: '#64748b' }}>
+                            Fundo (Background)
+                        </label>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <input
+                                type="color"
+                                name="color_background"
+                                value={form.color_background}
+                                onChange={handleChange}
+                                style={{ width: '40px', height: '40px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer' }}
+                            />
+                            <Input
+                                name="color_background"
+                                value={form.color_background}
+                                onChange={handleChange}
+                                placeholder="#1A0F0A"
+                                style={{ flex: 1 }}
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: '500', color: '#64748b' }}>
+                            Superfície (Cards)
+                        </label>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <input
+                                type="color"
+                                name="color_surface"
+                                value={form.color_surface}
+                                onChange={handleChange}
+                                style={{ width: '40px', height: '40px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer' }}
+                            />
+                            <Input
+                                name="color_surface"
+                                value={form.color_surface}
+                                onChange={handleChange}
+                                placeholder="#2C1810"
+                                style={{ flex: 1 }}
+                            />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label style={{ fontSize: '0.75rem', fontWeight: '500', color: '#64748b' }}>
+                            Texto
+                        </label>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <input
+                                type="color"
+                                name="color_text"
+                                value={form.color_text}
+                                onChange={handleChange}
+                                style={{ width: '40px', height: '40px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer' }}
+                            />
+                            <Input
+                                name="color_text"
+                                value={form.color_text}
+                                onChange={handleChange}
+                                placeholder="#FFFFFF"
+                                style={{ flex: 1 }}
+                            />
+                        </div>
+                    </div>
+
+                    <div style={{ gridColumn: '1 / -1' }}>
+                        <label style={{ fontSize: '0.75rem', fontWeight: '500', color: '#64748b' }}>
+                            Texto Secundário (Muted)
+                        </label>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                            <input
+                                type="color"
+                                name="color_text_muted"
+                                value={form.color_text_muted}
+                                onChange={handleChange}
+                                style={{ width: '40px', height: '40px', border: '1px solid #e2e8f0', borderRadius: '8px', cursor: 'pointer' }}
+                            />
+                            <Input
+                                name="color_text_muted"
+                                value={form.color_text_muted}
+                                onChange={handleChange}
+                                placeholder="#94A3B8"
+                                style={{ flex: 1 }}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                {/* 🔥 FONTES */}
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '1rem' }}>
+                    <div style={{ gridColumn: '1 / -1' }}>
+                        <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#334155', display: 'block', marginBottom: '0.5rem' }}>
+                            Fontes
+                        </label>
+                    </div>
+
+                    <Select
+                        label="Fonte dos Títulos"
+                        name="font_heading"
+                        value={form.font_heading}
+                        onChange={handleChange}
+                        options={FONT_OPTIONS}
+                    />
+
+                    <Select
+                        label="Fonte do Corpo"
+                        name="font_body"
+                        value={form.font_body}
+                        onChange={handleChange}
+                        options={FONT_OPTIONS}
+                    />
+
+                    <Select
+                        label="Fonte de Destaque"
+                        name="font_accent"
+                        value={form.font_accent}
+                        onChange={handleChange}
+                        options={FONT_OPTIONS}
+                    />
                 </div>
             </div>
         );
@@ -726,7 +1457,7 @@ export default function AppearanceSettings() {
     }
 
     return (
-        <Card title="🎨 Personalização do Site">
+        <Card title="Personalização do Site">
             <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                 {renderTabs()}
                 {renderTabContent()}

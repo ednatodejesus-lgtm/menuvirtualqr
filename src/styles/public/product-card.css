@@ -1012,3 +1012,24 @@ html[data-menu-variant="list"]
     grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   }
 }
+
+
+.product-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--color-card, #2C1810);
+  border: 1px solid var(--color-border, #3D2318);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+  border-radius: var(--radius-card, 12px);
+}
+
+/* Garantir que as cores sejam aplicadas */
+.product-card .product-info {
+  background: var(--color-card, #2C1810);
+}
+
+.product-card .product-footer {
+  border-top-color: var(--color-border, #3D2318);
+}
