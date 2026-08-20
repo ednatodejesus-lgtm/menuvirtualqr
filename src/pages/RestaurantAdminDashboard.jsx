@@ -28,12 +28,13 @@ import {
 import { supabase } from "../services/supabase";
 
 import AdminSidebar from "../components/admin/AdminSidebar";
-import AdminHeader from "../components/admin/AdminHeader";
+
 
 import AdminCategories from "../components/admin/AdminCategories";
 import AdminProducts from "../components/admin/AdminProducts";
 import AdminQRCode from "../components/admin/AdminQRCode";
 import AdminSettings from "../components/admin/AdminSettings";
+import Help from "../components/admin/Help";
 
 import "../styles/admin.css";
 
@@ -150,20 +151,22 @@ export default function RestaurantAdminDashboard() {
     }, [restaurantId, loadDashboard]);
 
     // Renderizar página ativa
-    const renderPage = () => {
-        switch (activePage) {
-            case "categories":
-                return <AdminCategories />;
-            case "products":
-                return <AdminProducts />;
-            case "qrcode":
-                return <AdminQRCode />;
-            case "settings":
-                return <AdminSettings />;
-            default:
-                return renderDashboard();
-        }
-    };
+   const renderPage = () => {
+    switch (activePage) {
+        case "categories":
+            return <AdminCategories />;
+        case "products":
+            return <AdminProducts />;
+        case "qrcode":
+            return <AdminQRCode />;
+        case "settings":
+            return <AdminSettings />;
+        case "help":
+            return <Help />;
+        default:
+            return renderDashboard();
+    }
+};
 
     // Renderizar Dashboard
     const renderDashboard = () => {
@@ -319,11 +322,6 @@ export default function RestaurantAdminDashboard() {
             />
 
             <main className="admin-content">
-                <AdminHeader
-                    profile={profile}
-                    restaurant={restaurant}
-                    logout={logout}
-                />
 
                 {renderPage()}
             </main>

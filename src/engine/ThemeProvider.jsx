@@ -47,11 +47,6 @@ export function ThemeProvider({ theme: restaurantTheme, children }) {
     root.setAttribute('data-categories-variant', theme?.layout?.categories?.variant || 'tabs');
     root.setAttribute('data-density', theme?.layout?.density || 'comfortable');
     
-    // 🔥 LOG PARA DEBUG
-    console.log('🔍 ThemeProvider aplicado:');
-    console.log('  Cores:', colors);
-    console.log('  Fontes:', fonts);
-    
     return () => {
       // Limpar CSS variables
       if (colors) {

@@ -825,3 +825,184 @@ line-height:1.8;
 
 
 }
+
+
+/* ============================================================
+   ADMIN SIDEBAR
+   ============================================================ */
+.admin-sidebar {
+    width: 240px;
+    min-height: 100vh;
+    background: var(--sidebar-bg, #1A0F0A);
+    color: var(--sidebar-text, #94A3B8);
+    display: flex;
+    flex-direction: column;
+    padding: 1.5rem 0;
+    border-right: 1px solid var(--sidebar-border, #2C1810);
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+}
+
+/* Dark Mode */
+.admin-sidebar.dark {
+    --sidebar-bg: #1A0F0A;
+    --sidebar-text: #94A3B8;
+    --sidebar-text-hover: #FFFFFF;
+    --sidebar-border: #2C1810;
+    --sidebar-active-bg: #2C1810;
+    --sidebar-active-text: #DAA520;
+    --sidebar-logout: #ef4444;
+}
+
+/* Light Mode */
+.admin-sidebar.light {
+    --sidebar-bg: #FFFFFF;
+    --sidebar-text: #64748B;
+    --sidebar-text-hover: #0F172A;
+    --sidebar-border: #E2E8F0;
+    --sidebar-active-bg: #F1F5F9;
+    --sidebar-active-text: #8B4513;
+    --sidebar-logout: #dc2626;
+}
+
+/* Sidebar Header */
+.sidebar-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0 1.5rem 1.5rem;
+    border-bottom: 1px solid var(--sidebar-border);
+    margin-bottom: 1.5rem;
+}
+
+.sidebar-header h2 {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--sidebar-text);
+    margin: 0;
+}
+
+.sidebar-logo-icon {
+    color: var(--sidebar-active-text, #DAA520);
+}
+
+/* Navigation */
+.admin-sidebar nav {
+    flex: 1;
+    padding: 0 0.75rem;
+}
+
+/* Nav Items */
+.sidebar-nav-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 8px;
+    background: transparent;
+    color: var(--sidebar-text);
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 500;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.sidebar-nav-item:hover {
+    background: var(--sidebar-active-bg);
+    color: var(--sidebar-text-hover);
+}
+
+.sidebar-nav-item.active {
+    background: var(--sidebar-active-bg);
+    color: var(--sidebar-active-text);
+    font-weight: 600;
+}
+
+.sidebar-nav-item.active svg {
+    color: var(--sidebar-active-text);
+}
+
+.sidebar-nav-item svg {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+}
+
+/* Logout Button */
+.sidebar-footer {
+    padding: 0.75rem;
+    border-top: 1px solid var(--sidebar-border);
+    margin-top: auto;
+}
+
+.sidebar-logout {
+    color: var(--sidebar-logout);
+}
+
+.sidebar-logout:hover {
+    background: rgb(239, 68, 68);
+    color: var(--sidebar-logout);
+}
+
+.sidebar-logout.active {
+    background: rgb(239, 68, 68);
+    color: var(--sidebar-logout);
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+    .admin-sidebar {
+        width: 60px;
+        padding: 1rem 0;
+    }
+
+    .sidebar-header h2 {
+        display: none;
+    }
+
+    .sidebar-nav-item span {
+        display: none;
+    }
+
+    .sidebar-nav-item {
+        justify-content: center;
+        padding: 0.75rem;
+    }
+
+    .sidebar-nav-item svg {
+        width: 24px;
+        height: 24px;
+    }
+
+    .sidebar-footer .sidebar-nav-item span {
+        display: none;
+    }
+}
+
+/* ============================================================
+   SCROLLBAR
+   ============================================================ */
+.admin-sidebar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.admin-sidebar::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+    background: var(--sidebar-border);
+    border-radius: 4px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb:hover {
+    background: var(--sidebar-active-text);
+}
