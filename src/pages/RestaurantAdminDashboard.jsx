@@ -32,6 +32,7 @@ import AdminSidebar from "../components/admin/AdminSidebar";
 
 import AdminCategories from "../components/admin/AdminCategories";
 import AdminProducts from "../components/admin/AdminProducts";
+import AdminPromotions from '../components/admin/AdminPromotions';
 import AdminQRCode from "../components/admin/AdminQRCode";
 import AdminSettings from "../components/admin/AdminSettings";
 import Help from "../components/admin/Help";
@@ -157,6 +158,8 @@ export default function RestaurantAdminDashboard() {
             return <AdminCategories />;
         case "products":
             return <AdminProducts />;
+        case "promotions":
+            return <AdminPromotions />;
         case "qrcode":
             return <AdminQRCode />;
         case "settings":

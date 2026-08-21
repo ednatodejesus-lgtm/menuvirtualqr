@@ -6,7 +6,9 @@ import {
     Settings,
     HelpCircle,
     LogOut,
-    Store
+    Store,
+    Tag, 
+    Sparkles
 } from 'lucide-react';
 
 import { useAuth } from '../../hooks/useAuth';
@@ -33,6 +35,11 @@ export default function AdminSidebar({
             label: "Produtos",
             icon: Package,
         },
+
+        { id: "promotions", 
+          label: "Promoções", 
+          icon: Tag },
+
         {
             id: "qrcode",
             label: "QR Code",

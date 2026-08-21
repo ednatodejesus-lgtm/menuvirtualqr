@@ -4,6 +4,7 @@ import { getRestaurantBySlug, getCategories, getProducts } from "../services/pub
 //  Importar do engine
 import { ThemeProvider } from "../engine/ThemeProvider";
 import RestaurantHero from "../components/public/RestaurantHero";
+import Promo from '../components/public/Promo';
 import CategoryTabs from "../components/public/CategoryTabs";
 import ProductGrid from "../components/public/ProductGrid";
 import SearchBar from "../components/public/SearchBar";
@@ -12,7 +13,6 @@ import LoadingScreen from "../components/public/LoadingScreen";
 import EmptyMenu from "../components/public/EmptyMenu";
 // Importar estilos
 import { Lock, XCircle, Home } from "lucide-react";
-import "../styles/public/public-menu.css";
 import "../styles/public/public-menu.css";
 import "../styles/public/categories.css";
 import "../styles/public/product-card.css";
@@ -103,6 +103,7 @@ export default function PublicMenu() {
     <ThemeProvider theme={restaurant.theme}>
       <main className="mvqr-public-menu">
         <RestaurantHero restaurant={restaurant} />
+        <Promo restaurantId={restaurant.id} />
         <div className="menu-content">
           <SearchBar value={search} onChange={setSearch} />
           <CategoryTabs categories={categories} activeCategory={activeCategory} onCategoryChange={setActiveCategory} />

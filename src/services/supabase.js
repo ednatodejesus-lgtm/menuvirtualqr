@@ -17,6 +17,8 @@ export const TABLES = {
   PROFILES: 'profiles',
   CATEGORIES: 'categories',
   PRODUCTS: 'products',
+  PROMOTIONS: 'promotions',
   QR_CODES: 'qr_codes'
+  
 }
 
