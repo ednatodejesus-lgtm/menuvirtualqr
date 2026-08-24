@@ -184,6 +184,25 @@ export function AuthProvider({ children }) {
         setProfile(null);
     }, []);
 
+
+const loginWithGoogle = async () => {
+    try {
+        const { data, error } = await supabase.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin + '/DashboardRouter',
+            },
+        });
+        
+        if (error) throw error;
+        return data;
+    } catch (error) {
+        console.error('Google login error:', error);
+        throw error;
+    }
+};
+
+
     // Memoiza o value pra não recriar objeto a cada render e evitar
     // re-render em cascata de quem consome o contexto.
     const value = useMemo(() => ({
@@ -191,6 +210,7 @@ export function AuthProvider({ children }) {
         profile,
         loading,
         login,
+        loginWithGoogle,
         logout
     }), [user, profile, loading, login, logout]);
 
