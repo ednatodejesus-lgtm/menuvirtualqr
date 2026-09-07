@@ -190,7 +190,7 @@ export default function Help() {
                 },
                 {
                     title: 'Imprimir e Colocar',
-                    description: 'Imprima o QR Code e coloque-o nas mesas, na porta ou no balcão do seu restaurante.',
+                    description: 'Imprima o QR Code e coloque-o nas mesas, na porta ou no balcão da sua Empresa.',
                     icon: Image,
                 },
                 {
@@ -222,9 +222,9 @@ export default function Help() {
                     </p>
                     <p className="help-restaurant-info">
                         <Store size={16} />
-                        Restaurante: <strong>{restaurant?.name || profile?.full_name || 'Configurar'}</strong>
+                        Gerente: <strong>{restaurant?.name || profile?.full_name || 'Gerente'}</strong>
                         {' '}·{' '}
-                        <span className="help-business-type">{restaurant?.business_type || 'Tipo de negócio'}</span>
+                        
                     </p>
                 </div>
 
