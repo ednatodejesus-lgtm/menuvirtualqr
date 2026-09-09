@@ -1,6 +1,7 @@
 import {
     Routes,
-    Route
+    Route,
+    Navigate
 } from "react-router-dom";
 
 import Login from "./pages/Login";
@@ -18,14 +19,20 @@ from "./components/common/ProtectedRoute";
 export default function AppRoutes() {
 
     return (
+
         <Routes>
+
+            {/* RAIZ */}
+            <Route
+                path="/"
+                element={<Navigate to="/login" replace />}
+            />
 
             {/* LOGIN */}
             <Route
                 path="/login"
                 element={<Login />}
             />
-
 
             {/* DASHBOARD PROTEGIDO */}
             <Route
@@ -36,7 +43,6 @@ export default function AppRoutes() {
                     </ProtectedRoute>
                 }
             />
-
 
             {/* MENU PÚBLICO */}
             <Route

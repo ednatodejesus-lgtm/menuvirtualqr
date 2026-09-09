@@ -8,7 +8,7 @@ export default function QrModal({ restaurant, onClose }) {
 
   if (!restaurant) return null;
 
-  const APP_URL = import.meta.env.VITE_APP_URL || "http://localhost:5173";
+  const APP_URL = import.meta.env.VITE_APP_URL || "https://menuvirtualqr.web.app";
   const qrLink = `${APP_URL}/menu/${restaurant.slug}`;
 
   async function downloadQR() {

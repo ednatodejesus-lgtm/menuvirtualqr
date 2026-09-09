@@ -255,7 +255,7 @@ if (description) {
 // 9. Create QR Code automatically
 
 const APP_URL = Deno.env.get("APP_URL") 
-  || "http://localhost:5173";
+  || "https://menuvirtualqr.web.app";
 
 
 const publicLink = `${APP_URL}/menu/${restaurant.slug}`;
