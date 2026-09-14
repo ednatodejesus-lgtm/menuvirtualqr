@@ -1,17 +1,15 @@
 import { useState } from "react";
 import { X, Copy, Check, Download } from "lucide-react";
-import { QRCodeCanvas } from "qrcode.react";  // Correto para v4.2.0
-import { supabase } from "../../services/supabase";
+import { QRCodeCanvas } from "qrcode.react";
+import { MENUQR_QR_IMAGE_SETTINGS, getPublicMenuUrl } from "../../services/qrBrand";
 
 export default function QrModal({ restaurant, onClose }) {
   const [copied, setCopied] = useState(false);
-
   if (!restaurant) return null;
 
-  const APP_URL = import.meta.env.VITE_APP_URL || "https://menuvirtualqr.web.app";
-  const qrLink = `${APP_URL}/menu/${restaurant.slug}`;
+  const qrLink = getPublicMenuUrl(restaurant.slug);
 
-  async function downloadQR() {
+  function downloadQR() {
     const canvas = document.getElementById("qr-code-canvas");
     if (canvas) {
       const link = document.createElement("a");
@@ -36,9 +34,7 @@ export default function QrModal({ restaurant, onClose }) {
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
           <h2>QR Code - {restaurant.name}</h2>
-          <button className="modal-close" onClick={onClose}>
-            <X size={20} />
-          </button>
+          <button className="modal-close" onClick={onClose}><X size={20} /></button>
         </div>
 
         <div className="modal-body">
@@ -49,6 +45,7 @@ export default function QrModal({ restaurant, onClose }) {
               size={200}
               level="H"
               includeMargin={true}
+              imageSettings={MENUQR_QR_IMAGE_SETTINGS}
             />
           </div>
 
@@ -64,12 +61,9 @@ export default function QrModal({ restaurant, onClose }) {
 
           <div className="qr-actions">
             <button className="primary-button" onClick={downloadQR}>
-              <Download size={18} />
-              Baixar QR Code
+              <Download size={18} /> Baixar QR Code
             </button>
-            <button className="secondary-button" onClick={onClose}>
-              Fechar
-            </button>
+            <button className="secondary-button" onClick={onClose}>Fechar</button>
           </div>
         </div>
       </div>
