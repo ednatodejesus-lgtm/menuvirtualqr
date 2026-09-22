@@ -1,7 +1,7 @@
 import React from 'react';
 import { useTheme } from '../../engine/ThemeProvider';
+import { useLanguage } from '../../i18n/useLanguage';
 import { MapPin, Phone, Mail } from 'lucide-react';
-// 🔥 IMPORTAR ICONES DE MARCAS DO REACT-ICONS
 import { 
   FaInstagram, 
   FaFacebook, 
@@ -11,6 +11,7 @@ import {
 
 export default function RestaurantFooter({ restaurant }) {
   const { theme } = useTheme();
+  const { t, getBusinessInfo } = useLanguage();
   const footerConfig = theme?.layout?.footer || {};
   const colors = theme?.visual?.colors || {};
   
@@ -57,7 +58,6 @@ export default function RestaurantFooter({ restaurant }) {
       url: restaurant?.social_links?.whatsapp,
       icon: FaWhatsapp,
       label: 'WhatsApp',
-      getHref: (url) => url ? `https://wa.me/${url.replace(/\D/g, '')}` : null,
     },
     {
       id: 'tiktok',
@@ -69,18 +69,17 @@ export default function RestaurantFooter({ restaurant }) {
 
   // Filtrar apenas redes com URL
   const activeSocialLinks = socialLinks.filter(social => social.url);
-  
-   
 
   const getSocialHref = (social) => {
     if (social.id === 'whatsapp' && social.url) {
-      // Remove tudo que não é número para o WhatsApp
       const phone = social.url.replace(/\D/g, '');
       return `https://wa.me/${phone}`;
     }
     return social.url;
   };
 
+  // 🔥 Business type traduzido
+  const businessInfo = getBusinessInfo(restaurant?.business_type);
 
   return (
     <footer 
@@ -122,8 +121,8 @@ export default function RestaurantFooter({ restaurant }) {
         
         <div className="footer-copyright">
           <h1>{restaurant?.name}</h1>
-          <p>{restaurant?.business_type}</p>
-          <p>© 2026 Menu Virtual QR - Todos os direitos reservados</p>
+          <p>{businessInfo.type}</p>
+          <p>{t('footer.copyright')}</p>
         </div>
       </div>
     </footer>

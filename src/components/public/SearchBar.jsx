@@ -1,16 +1,12 @@
-import { Search, } from "lucide-react";
+import { Search } from "lucide-react";
+import { useLanguage } from '../../i18n/useLanguage';
 
-export default function SearchBar({
-  value,
-  onChange,
-}) {
-  const hasValue = Boolean(
-    value?.trim()
-  );
+export default function SearchBar({ value, onChange }) {
+  const { t } = useLanguage();
+  const hasValue = Boolean(value?.trim());
 
   return (
     <div className="mvqr-search">
-
       <Search
         className="mvqr-search__icon"
         size={19}
@@ -20,11 +16,9 @@ export default function SearchBar({
       <input
         type="search"
         value={value}
-        onChange={(event) =>
-          onChange(event.target.value)
-        }
-        placeholder="Pesquisar no menu..."
-        aria-label="Pesquisar no menu"
+        onChange={(event) => onChange(event.target.value)}
+        placeholder={t('menu.searchPlaceholder')}
+        aria-label={t('menu.searchPlaceholder')}
       />
 
       {hasValue && (
@@ -32,11 +26,10 @@ export default function SearchBar({
           type="button"
           className="mvqr-search__clear"
           onClick={() => onChange("")}
-          aria-label="Limpar pesquisa"
+          aria-label={t('common.clear')}
         >
         </button>
       )}
-
     </div>
   );
 }

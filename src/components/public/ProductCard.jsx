@@ -1,11 +1,12 @@
 import React from 'react';
 import { useTheme } from '../../engine/ThemeProvider';
+import { useLanguage } from '../../i18n/useLanguage';
 import { Star, Utensils, CheckCircle, XCircle } from 'lucide-react';
 
 export default function ProductCard({ product }) {
   const { theme } = useTheme();
-  
-  
+  const { t } = useLanguage();
+
   const menuConfig = theme?.layout?.menu || {};
   
   // Estilos baseados no tema
@@ -52,7 +53,7 @@ export default function ProductCard({ product }) {
         {product.destaque && (
           <span className="product-badge">
             <Star size={12} />
-            Destaque
+            {t('products.featured')}
           </span>
         )}
       </div>
@@ -64,7 +65,7 @@ export default function ProductCard({ product }) {
         )}
         <div className="product-footer">
           <span className={`product-price price-${priceEmphasis}`}>
-           <h3> Preço: {parseFloat(product.price).toFixed(2)} Kz</h3>
+            <h3>{t('products.price')}: {parseFloat(product.price).toFixed(2)} Kz</h3>
           </span>
           <span className="product-availability">
             {product.disponivel ? (
@@ -72,7 +73,7 @@ export default function ProductCard({ product }) {
             ) : (
               <XCircle size={14} color="#ef4444" />
             )}
-            {product.disponivel ? ' Disponível' : ' Indisponível'}
+            {product.disponivel ? ` ${t('products.available')}` : ` ${t('products.unavailable')}`}
           </span>
         </div>
       </div>

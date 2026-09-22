@@ -1,4 +1,5 @@
 import { useTheme } from "../../engine/ThemeProvider";
+import { useLanguage } from '../../i18n/useLanguage';
 
 export default function CategoryTabs({
   categories = [],
@@ -6,6 +7,7 @@ export default function CategoryTabs({
   onCategoryChange,
 }) {
   const { theme } = useTheme();
+  const { t } = useLanguage();
 
   if (!categories.length) {
     return null;
@@ -25,7 +27,7 @@ export default function CategoryTabs({
   const allCategories = [
     {
       id: "all",
-      name: "Todos",
+      name: t('menu.allCategories'),
     },
     ...categories,
   ];
@@ -37,7 +39,7 @@ export default function CategoryTabs({
         mvqr-category-tabs--${variant}
         mvqr-category-tabs--${position}
       `}
-      aria-label="Categorias do menu"
+      aria-label={t('menu.categoriesLabel')}
       data-categories-variant={variant}
     >
       <div className="mvqr-category-tabs__inner">

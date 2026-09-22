@@ -2,9 +2,11 @@ import React from 'react';
 import { useTheme } from '../../engine/ThemeProvider';
 import { resolveHero } from '../../engine/resolveHero';
 import { Utensils, ArrowRight } from 'lucide-react';
+import { useLanguage } from '../../i18n/useLanguage';
 
 export default function RestaurantHero({ restaurant }) {
   const { theme } = useTheme();
+  const { t } = useLanguage();
   const hero = resolveHero(theme);
   
   // Estilos dinâmicos baseados no tema
@@ -53,7 +55,7 @@ export default function RestaurantHero({ restaurant }) {
         <p className="hero-subtitle">{hero.subtitle}</p>
         <div className="hero-actions">
           <a href="#menu" className="hero-cta">
-            {hero.cta_text || 'Ver Menu'}
+            {hero.cta_text || t('hero.viewMenu')}
             <ArrowRight size={16} />
           </a>
           {hero.secondary_cta && (
