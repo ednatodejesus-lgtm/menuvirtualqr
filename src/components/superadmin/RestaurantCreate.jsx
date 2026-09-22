@@ -453,10 +453,6 @@ Hotel
 Hospedaria
 </option>
 
-<option value="loja_roupa">
-Loja de roupa
-</option>
-
 <option value="boutique">
 Boutique
 </option>
@@ -465,8 +461,8 @@ Boutique
 Spa
 </option>
 
-<option value="humbergeria">
-Humbergeria
+<option value="hamburgueria">
+Hamburgueria
 </option>
 
 <option value="cafeteria">

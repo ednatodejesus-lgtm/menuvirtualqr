@@ -14,11 +14,11 @@ export function generateRestaurantPDF(data) {
   doc.setFontSize(22);
   doc.text("Menu Virtual QR", 20, 25);
   doc.setFontSize(12);
-  doc.text("Comprovativo de criação de restaurante", 20, 35);
+  doc.text("Comprovativo de criação da empresa", 20, 35);
   doc.line(20, 40, 190, 40);
 
   doc.setFontSize(15);
-  doc.text("Restaurante", 20, 55);
+  doc.text("Empresa:", 20, 55);
   doc.setFontSize(12);
   doc.text(restaurant.name, 20, 65);
 

@@ -4,7 +4,7 @@ export const APP = {
 
   URL:
     import.meta.env.VITE_APP_URL ||
-    "http://localhost:5173",
+    "https://menuvirtualqr.web.app",
 
   VERSION: "1.0.0"
 

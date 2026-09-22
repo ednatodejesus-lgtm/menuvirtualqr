@@ -4,7 +4,6 @@ import { getRestaurantBySlug, getCategories, getProducts } from "../services/pub
 //  Importar do engine
 import { ThemeProvider } from "../engine/ThemeProvider";
 import RestaurantHero from "../components/public/RestaurantHero";
-import Promo from '../components/public/Promo';
 import CategoryTabs from "../components/public/CategoryTabs";
 import ProductGrid from "../components/public/ProductGrid";
 import SearchBar from "../components/public/SearchBar";
@@ -13,6 +12,7 @@ import LoadingScreen from "../components/public/LoadingScreen";
 import EmptyMenu from "../components/public/EmptyMenu";
 // Importar estilos
 import { Lock, XCircle, Home } from "lucide-react";
+import "../styles/public/public-menu.css";
 import "../styles/public/public-menu.css";
 import "../styles/public/categories.css";
 import "../styles/public/product-card.css";
@@ -41,7 +41,7 @@ export default function PublicMenu() {
           return;
         }
         if (restaurantData.status === "suspended") {
-          setError("Este restaurante esta bloqueado. O menu nao pode ser exibido no momento.");
+          setError("Esta empresa está bloqueada. O menu não pode ser exibido no momento.");
           setLoading(false);
           return;
         }
@@ -86,7 +86,7 @@ export default function PublicMenu() {
             {isBlocked ? <Lock size={48} color="#ef4444" /> : <XCircle size={48} color="#ef4444" />}
           </div>
           <h2 className="mvqr-error-title">
-            {isBlocked ? "Restaurante bloqueado" : "Menu indisponivel"}
+            {isBlocked ? "Empresa bloqueada" : "Menu indisponível"}
           </h2>
           <p className="mvqr-error-message">{error}</p>
           <button className="mvqr-error-button" onClick={() => window.location.href = "/"}>
@@ -103,7 +103,6 @@ export default function PublicMenu() {
     <ThemeProvider theme={restaurant.theme}>
       <main className="mvqr-public-menu">
         <RestaurantHero restaurant={restaurant} />
-        <Promo restaurantId={restaurant.id} />
         <div className="menu-content">
           <SearchBar value={search} onChange={setSearch} />
           <CategoryTabs categories={categories} activeCategory={activeCategory} onCategoryChange={setActiveCategory} />
