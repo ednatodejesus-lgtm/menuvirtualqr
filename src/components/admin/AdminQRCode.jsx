@@ -62,15 +62,14 @@ export default function AdminQRCode() {
     }
   }
 
-  function handleGeneratePDF() {
-    const data = {
-      ...qr,
-      restaurantName: qr?.restaurant_name || profile?.full_name || "Restaurante",
-      logoUrl: qr?.logo_url || null,
-      products: qr?.products || [],
-    };
-    generateRestaurantPDF(data, pdfType);
-  }
+ function handleGeneratePDF() {
+  const data = {
+    ...qr,
+    // ✅ Usa o nome do restaurante. Se não existir, usa o slug como fallback.
+    restaurantName: qr?.restaurant.name || qr?.name || qr?.slug || "Restaurante",// Garante que o slug existe
+  };
+  generateRestaurantPDF(data, pdfType);
+}
 
   if (loading) {
     return <Card title="QR Code do Restaurante"><p style={{ color: "#64748b" }}>A carregar QR Code...</p></Card>;

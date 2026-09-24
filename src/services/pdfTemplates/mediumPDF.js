@@ -1,7 +1,23 @@
 import jsPDF from "jspdf";
+import { MENUQR_HORIZONTAL_LOGO } from "../Brand";
+
+function svgToPngDataUrl(svgDataUrl, width, height) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = width * 2;
+      canvas.height = height * 2;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.src = svgDataUrl;
+  });
+}
 
 export async function generateMediumPDF(data) {
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
     const doc = new jsPDF("p", "mm", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -9,14 +25,25 @@ export async function generateMediumPDF(data) {
     doc.setFillColor(255, 255, 255);
     doc.rect(0, 0, pageWidth, pageHeight, "F");
 
+    // Faixa escura no topo
     doc.setFillColor(60, 30, 10);
     doc.rect(0, 0, pageWidth, 25, "F");
 
+    // --- LOGO HORIZONTAL ---
+    const logoPng = await svgToPngDataUrl(MENUQR_HORIZONTAL_LOGO, 150, 40);
+    const logoWidth = 50;
+    const logoHeight = 13;
+    // Colocado no canto direito da faixa escura
+    doc.addImage(logoPng, "PNG", pageWidth - logoWidth - 15, 6, logoWidth, logoHeight);
+    // ------------------------
+
+    // Nome do restaurante à esquerda
     doc.setFontSize(18);
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "bold");
     doc.text(data.restaurantName || "Restaurante", 20, 17);
 
+    // O resto do código permanece igual
     doc.setFontSize(14);
     doc.setTextColor(255, 215, 0);
     doc.setFont("helvetica", "normal");

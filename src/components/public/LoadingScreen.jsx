@@ -1,17 +1,14 @@
-export default function LoadingScreen({
-  message = "A preparar o menu...",
-}) {
+import "../../styles/Loading.css";
+
+export default function Loading() {
   return (
-    <div className="mvqr-loading">
-
-      <div className="mvqr-loading__animation">
-        🍽️
+    <div className="menuqr-loader">
+      <div className="logo-container">
+        <span className="letter m">M</span>
+        <span className="letter enu">enu</span>
+        <span className="letter q">Q</span>
+        <span className="letter r">r</span>
       </div>
-
-      <p>
-        {message}
-      </p>
-
     </div>
   );
 }

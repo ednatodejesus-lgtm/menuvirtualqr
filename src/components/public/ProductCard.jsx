@@ -8,33 +8,52 @@ export default function ProductCard({ product }) {
   const { t } = useLanguage();
 
   const menuConfig = theme?.layout?.menu || {};
-  
+
+  // Formata o preço para o padrão usado na interface:
+  // 500000.23 → 500.000,23
+const formatPrice = (value) => {
+  return Number(value).toLocaleString('de-DE', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+};
+
+
   // Estilos baseados no tema
   const cardStyles = {
     borderRadius: theme?.tokens?.card_radius || '12px',
     boxShadow: theme?.tokens?.shadow || '0 4px 12px rgba(0,0,0,0.1)',
     transition: `all ${theme?.tokens?.transition || '0.3s ease'}`,
     backgroundColor: `var(--color-card, #2C1810)`,
-    border: `1px solid var(--color-border, #3D2318)`,
+    border: '1px solid var(--color-border, #3D2318)',
     overflow: 'hidden',
   };
 
   const getCardVariant = () => {
     switch (menuConfig.card_variant || 'grid') {
-      case 'showcase': return 'product-card-showcase';
-      case 'immersive': return 'product-card-immersive';
-      case 'editorial': return 'product-card-editorial';
-      case 'list': return 'product-card-list';
-      default: return 'product-card-grid';
+      case 'showcase':
+        return 'product-card-showcase';
+      case 'immersive':
+        return 'product-card-immersive';
+      case 'editorial':
+        return 'product-card-editorial';
+      case 'list':
+        return 'product-card-list';
+      default:
+        return 'product-card-grid';
     }
   };
 
   const getImageRatio = () => {
     switch (menuConfig.image_ratio || 'square') {
-      case 'portrait': return 'aspect-3-4';
-      case 'landscape': return 'aspect-4-3';
-      case 'cinematic': return 'aspect-16-9';
-      default: return 'aspect-square';
+      case 'portrait':
+        return 'aspect-3-4';
+      case 'landscape':
+        return 'aspect-4-3';
+      case 'cinematic':
+        return 'aspect-16-9';
+      default:
+        return 'aspect-square';
     }
   };
 
@@ -50,6 +69,7 @@ export default function ProductCard({ product }) {
             <Utensils size={32} />
           </div>
         )}
+
         {product.destaque && (
           <span className="product-badge">
             <Star size={12} />
@@ -57,23 +77,31 @@ export default function ProductCard({ product }) {
           </span>
         )}
       </div>
-      
+
       <div className="product-info">
         <h3 className="product-name">{product.name}</h3>
+
         {product.description && (
           <p className="product-description">{product.description}</p>
         )}
+
         <div className="product-footer">
           <span className={`product-price price-${priceEmphasis}`}>
-            <h3>{t('products.price')}: {parseFloat(product.price).toFixed(2)} Kz</h3>
+            <h3>
+              {t('products.price')}: {formatPrice(product.price)} Kz
+            </h3>
           </span>
+
           <span className="product-availability">
             {product.disponivel ? (
               <CheckCircle size={14} color="#22c55e" />
             ) : (
               <XCircle size={14} color="#ef4444" />
             )}
-            {product.disponivel ? ` ${t('products.available')}` : ` ${t('products.unavailable')}`}
+
+            {product.disponivel
+              ? ` ${t('products.available')}`
+              : ` ${t('products.unavailable')}`}
           </span>
         </div>
       </div>

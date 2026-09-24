@@ -1,7 +1,23 @@
 import jsPDF from "jspdf";
+import { MENUQR_HORIZONTAL_LOGO } from "../Brand";
+
+function svgToPngDataUrl(svgDataUrl, width, height) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      canvas.width = width * 2;
+      canvas.height = height * 2;
+      const ctx = canvas.getContext("2d");
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      resolve(canvas.toDataURL("image/png"));
+    };
+    img.src = svgDataUrl;
+  });
+}
 
 export async function generatePremiumPDF(data) {
-  return new Promise((resolve) => {
+  return new Promise(async (resolve) => {
     const doc = new jsPDF("p", "mm", "a4");
     const pageWidth = doc.internal.pageSize.getWidth();
     const pageHeight = doc.internal.pageSize.getHeight();
@@ -11,15 +27,22 @@ export async function generatePremiumPDF(data) {
     doc.setFillColor(60, 30, 10);
     doc.rect(0, 50, pageWidth, pageHeight - 50, "F");
 
+    // --- LOGO HORIZONTAL ---
+    const logoPng = await svgToPngDataUrl(MENUQR_HORIZONTAL_LOGO, 150, 40);
+    const logoWidth = 55;
+    const logoHeight = 14;
+    doc.addImage(logoPng, "PNG", (pageWidth - logoWidth) / 2, 8, logoWidth, logoHeight);
+    // ------------------------
+
     doc.setFontSize(24);
     doc.setTextColor(255, 215, 0);
     doc.setFont("helvetica", "bold");
-    doc.text("MENU QR", pageWidth / 2, 25, { align: "center" });
+    doc.text("MENU QR", pageWidth / 2, 32, { align: "center" });
 
     doc.setFontSize(12);
     doc.setTextColor(255, 255, 255);
     doc.setFont("helvetica", "normal");
-    doc.text(data.restaurantName || "Restaurante", pageWidth / 2, 38, { align: "center" });
+    doc.text(data.restaurantName || "Restaurante", pageWidth / 2, 42, { align: "center" });
 
     doc.setDrawColor(255, 215, 0);
     doc.setLineWidth(0.5);

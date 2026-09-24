@@ -8,7 +8,6 @@ import {
     FaFacebook,
     FaInstagram,
     FaTiktok,
-    FaGlobe,
     FaLink
 } from 'react-icons/fa';
 
@@ -35,8 +34,8 @@ export default function SocialSettings() {
         whatsapp: "",
         facebook: "",
         instagram: "",
-        tiktok: "",
-        website: ""
+        tiktok: ""
+        
     });
 
     const restaurantId = profile?.restaurant_id;
@@ -54,8 +53,8 @@ export default function SocialSettings() {
                 whatsapp: data.social_links?.whatsapp || "",
                 facebook: data.social_links?.facebook || "",
                 instagram: data.social_links?.instagram || "",
-                tiktok: data.social_links?.tiktok || "",
-                website: data.social_links?.website || ""
+                tiktok: data.social_links?.tiktok || ""
+                
             });
         } catch (error) {
             console.error("Erro ao carregar redes sociais:", error);
@@ -135,18 +134,8 @@ export default function SocialSettings() {
             placeholder: 'https://tiktok.com/@seu-perfil',
             description: 'URL do seu perfil',
             example: 'Ex: https://tiktok.com/@meurestaurante'
-        },
-        {
-            name: 'website',
-            label: 'Website',
-            icon: FaGlobe,
-            iconColor: '#6B7280',
-            bgColor: '#f9fafb',
-            borderColor: '#d1d5db',
-            placeholder: 'https://seusite.com',
-            description: 'URL do seu site oficial',
-            example: 'Ex: https://meurestaurante.com'
         }
+        
     ];
 
     if (loading) {

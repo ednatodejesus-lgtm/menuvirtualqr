@@ -46,6 +46,8 @@ export default function AdminProducts() {
   const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef(null);
 
+  const [filterCategory, setFilterCategory] = useState("all");
+
   async function loadData() {
     if (!restaurantId) return;
 
@@ -545,20 +547,108 @@ export default function AdminProducts() {
 
       <hr style={{ margin: "2rem 0", border: "none", borderTop: "1px solid #e2e8f0" }} />
 
-      {/* Tabela de produtos */}
-      {loading ? (
-        <div style={{ textAlign: "center", padding: "2rem" }}>
-          <Loader2 size={24} className="animate-spin" style={{ color: "#8B4513" }} />
-          <p style={{ marginTop: "0.5rem", color: "#64748b" }}>A carregar produtos...</p>
-        </div>
-      ) : (
-        <Table
-          columns={columns}
-          data={products}
-          actions={renderActions}
-          emptyMessage="Nenhum produto cadastrado. Crie o primeiro produto acima."
-        />
-      )}
+{/* 🔥 FILTRO POR CATEGORIA */}
+<div style={{
+  display: "flex",
+  alignItems: "center",
+  gap: "0.75rem",
+  marginBottom: "1rem",
+  flexWrap: "wrap"
+}}>
+  <label style={{
+    fontSize: "0.875rem",
+    fontWeight: "600",
+    color: "#334155",
+    display: "flex",
+    alignItems: "center",
+    gap: "0.4rem"
+  }}>
+    <Package size={16} />
+    Filtrar por categoria:
+  </label>
+
+  <select
+    value={filterCategory}
+    onChange={(e) => setFilterCategory(e.target.value)}
+    style={{
+      padding: "0.5rem 0.75rem",
+      border: "1px solid #e2e8f0",
+      borderRadius: "8px",
+      fontSize: "0.875rem",
+      background: "white",
+      color: "#0f172a",
+      cursor: "pointer",
+      minWidth: "200px",
+      outline: "none"
+    }}
+  >
+    <option value="all">Todas as categorias</option>
+    {categories.map((cat) => (
+      <option key={cat.id} value={cat.id}>
+        {cat.name}
+      </option>
+    ))}
+  </select>
+
+  {/* 🔥 CONTADOR */}
+  <span style={{
+    fontSize: "0.8rem",
+    color: "#94a3b8",
+    marginLeft: "auto"
+  }}>
+    {filterCategory === "all"
+      ? `${products.length} produtos`
+      : `${products.filter(p => p.category_id === filterCategory).length} produtos`
+    }
+  </span>
+
+  {/* 🔥 BOTÃO LIMPAR FILTRO */}
+  {filterCategory !== "all" && (
+    <button
+      type="button"
+      onClick={() => setFilterCategory("all")}
+      style={{
+        padding: "0.4rem 0.8rem",
+        background: "#f1f5f9",
+        border: "1px solid #e2e8f0",
+        borderRadius: "8px",
+        fontSize: "0.8rem",
+        color: "#475569",
+        cursor: "pointer",
+        display: "flex",
+        alignItems: "center",
+        gap: "0.3rem"
+      }}
+    >
+      <X size={14} />
+      Limpar
+    </button>
+  )}
+</div>
+
+{/* Tabela de produtos */}
+{loading ? (
+  <div style={{ textAlign: "center", padding: "2rem" }}>
+    <Loader2 size={24} className="animate-spin" style={{ color: "#8B4513" }} />
+    <p style={{ marginTop: "0.5rem", color: "#64748b" }}>A carregar produtos...</p>
+  </div>
+) : (
+  <Table
+    columns={columns}
+    data={
+      filterCategory === "all"
+        ? products
+        : products.filter((p) => p.category_id === filterCategory)
+    }
+    actions={renderActions}
+    emptyMessage={
+      filterCategory === "all"
+        ? "Nenhum produto cadastrado. Crie o primeiro produto acima."
+        : "Nenhum produto nesta categoria."
+    }
+  />
+)}
+
     </Card>
   );
 }

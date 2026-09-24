@@ -420,7 +420,39 @@ export default function AppearanceSettings() {
             overlay_strength: form.hero_overlay_strength,
         },
         layout: {
-            // ... layout configs ...
+            // 🔥 HERO
+            hero: {
+                height: form.hero_height,
+                variant: form.hero_variant,
+                alignment: form.hero_alignment,
+            },
+            // 🔥 NAVEGAÇÃO
+            navigation: {
+                variant: form.nav_variant,
+                position: form.nav_position,
+            },
+            // 🔥 CATEGORIAS
+            categories: {
+                variant: form.categories_variant,
+                position: form.categories_position,
+            },
+            // 🔥 MENU
+            menu: {
+                variant: form.menu_variant,
+                card_variant: form.menu_card_variant,
+                image_ratio: form.menu_image_ratio,
+                price_emphasis: form.menu_price_emphasis,
+                image_priority: form.menu_image_priority,
+                description_style: form.menu_description_style,
+            },
+            // 🔥 FOOTER
+            footer: {
+                variant: form.footer_variant,
+                alignment: form.footer_alignment,
+            },
+            // 🔥 LAYOUT GERAL
+            density: form.density,
+            content_width: form.content_width,
         },
         visual: {
             colors: {
@@ -431,8 +463,7 @@ export default function AppearanceSettings() {
                 surface: form.color_surface,
                 text: form.color_text,
                 text_muted: form.color_text_muted,
-                // 🔥 ADICIONAR CORES DO CARD
-                card: form.color_surface, // Usa a mesma cor da superfície
+                card: form.color_surface,
                 border: form.color_border || '#3D2318',
                 overlay: 'rgba(0,0,0,0.6)',
             },
@@ -1259,7 +1290,7 @@ export default function AppearanceSettings() {
 
                     <div>
                         <label style={{ fontSize: '0.75rem', fontWeight: '500', color: '#64748b' }}>
-                            Primária
+                           Cor Primária do Fundo
                         </label>
                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                             <input
@@ -1281,7 +1312,7 @@ export default function AppearanceSettings() {
 
                     <div>
                         <label style={{ fontSize: '0.75rem', fontWeight: '500', color: '#64748b' }}>
-                            Secundária
+                          Cor Secundária do Fundo
                         </label>
                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                             <input
@@ -1303,7 +1334,7 @@ export default function AppearanceSettings() {
 
                     <div>
                         <label style={{ fontSize: '0.75rem', fontWeight: '500', color: '#64748b' }}>
-                            Destaque (Accent)
+                            Cor de Destaque (Accent)
                         </label>
                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                             <input
@@ -1369,7 +1400,7 @@ export default function AppearanceSettings() {
 
                     <div>
                         <label style={{ fontSize: '0.75rem', fontWeight: '500', color: '#64748b' }}>
-                            Texto
+                            Texto principal
                         </label>
                         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                             <input
