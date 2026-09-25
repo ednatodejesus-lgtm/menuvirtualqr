@@ -5,6 +5,7 @@ import { ThemeProvider } from "../engine/ThemeProvider";
 import { LanguageProvider } from "../i18n/LanguageProvider";
 import { useLanguage } from "../i18n/useLanguage";
 import RestaurantHero from "../components/public/RestaurantHero";
+import Promo from "../components/public/Promo";
 import CategoryTabs from "../components/public/CategoryTabs";
 import ProductGrid from "../components/public/ProductGrid";
 import SearchBar from "../components/public/SearchBar";
@@ -17,6 +18,7 @@ import "../styles/public/public-menu.css";
 import "../styles/public/categories.css";
 import "../styles/public/product-card.css";
 import "../styles/public/hero.css";
+import "../styles/public/promo.css";
 import "../styles/public/footer.css";
 
 // ============================================================
@@ -153,6 +155,8 @@ function PublicMenuContent() {
       <main className="mvqr-public-menu">
         {/* HERO SEMPRE VISÍVEL */}
         <RestaurantHero restaurant={restaurant} />
+         {/* PROMOÇÃO */}
+        <Promo restaurantId={restaurant.id} />
 
         <div className="menu-content">
           {/* SEARCH BAR SEMPRE VISÍVEL */}

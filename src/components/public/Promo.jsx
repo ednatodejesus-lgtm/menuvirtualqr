@@ -4,16 +4,14 @@ import {
     Clock, 
     Flame, 
     Sparkles, 
-    Percent,
     Calendar,
-    ArrowRight,
-    Gift,
-    Zap,
-    Info
+    ArrowRight
 } from 'lucide-react';
+import { useLanguage } from '../../i18n/useLanguage';
 import { getActivePromotions, getOfferOfTheDay } from '../../services/promotionService';
 
 export default function Promo({ restaurantId }) {
+    const { t } = useLanguage();
     const [promotions, setPromotions] = useState([]);
     const [offerOfDay, setOfferOfDay] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -60,94 +58,70 @@ export default function Promo({ restaurantId }) {
             <div className="mvqr-promo-header">
                 <div className="mvqr-promo-title">
                     <Sparkles size={24} className="mvqr-promo-icon" />
-                    <h2>Promoções e Ofertas</h2>
+                    <h2>{t('promotions.title')}</h2>
                 </div>
                 {offerOfDay && (
                     <div className="mvqr-offer-day-badge">
                         <Flame size={16} />
-                        Oferta do Dia
+                        {t('promotions.offerOfDay')}
                     </div>
                 )}
             </div>
 
-            {/* Tabs para filtrar */}
-            <div className="mvqr-promo-tabs">
-                <button 
-                    className={`mvqr-promo-tab ${activeTab === 'all' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('all')}
-                >
-                    Todas
-                </button>
-                <button 
-                    className={`mvqr-promo-tab ${activeTab === 'promotion' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('promotion')}
-                >
-                    <Tag size={14} />
-                    Promoções
-                </button>
-                <button 
-                    className={`mvqr-promo-tab ${activeTab === 'offer_day' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('offer_day')}
-                >
-                    <Calendar size={14} />
-                    Ofertas do Dia
-                </button>
-                <button 
-                    className={`mvqr-promo-tab ${activeTab === 'flash_sale' ? 'active' : ''}`}
-                    onClick={() => setActiveTab('flash_sale')}
-                >
-                    <Flame size={14} />
-                    Flash Sales
-                </button>
-            </div>
-
             {/* Lista de Promoções */}
             <div className="mvqr-promo-grid">
-                {displayPromotions.map((promo) => (
-                    <div key={promo.id} className={`mvqr-promo-card ${promo.type === 'offer_day' ? 'featured' : ''}`}>
-                        {promo.image_url && (
-                            <div className="mvqr-promo-image">
-                                <img src={promo.image_url} alt={promo.name} />
-                            </div>
-                        )}
-                        <div className="mvqr-promo-content">
-                            <div className="mvqr-promo-type">
-                                {promo.type === 'offer_day' && 'Oferta do Dia'}
-                                {promo.type === 'flash_sale' && 'Flash Sale'}
-                                {promo.type === 'promotion' && 'Promoção'}
-                            </div>
-                            <h3>{promo.name}</h3>
-                            {promo.description && (
-                                <p className="mvqr-promo-description">{promo.description}</p>
-                            )}
-                            <div className="mvqr-promo-price">
-                                {promo.original_price && (
-                                    <span className="mvqr-promo-original">
-                                        {promo.original_price} Kz
-                                    </span>
-                                )}
-                                <span className="mvqr-promo-discount">
-                                    {promo.discounted_price} Kz
-                                </span>
-                                {promo.discount_percentage > 0 && (
-                                    <span className="mvqr-promo-percent">
-                                        -{promo.discount_percentage}%
-                                    </span>
-                                )}
-                            </div>
-                            {promo.end_date && (
-                                <div className="mvqr-promo-time">
-                                    <Clock size={14} />
-                                    <span>Termina em: {new Date(promo.end_date).toLocaleDateString('pt-PT')}</span>
+                {displayPromotions.map((promo) => {
+                    // 🔥 Buscar imagem (promoção ou produto)
+                    const bgImage = promo.image_url || promo.products?.image_url;
+
+                    return (
+                        <div 
+                            key={promo.id} 
+                            className={`mvqr-promo-card ${promo.type === 'offer_day' ? 'featured' : ''}`}
+                            style={{
+                                backgroundImage: bgImage ? `url(${bgImage})` : 'none',
+                            }}
+                        >
+                            {/* 🔥 OVERLAY SUAVE */}
+                            <div className="mvqr-promo-overlay" />
+
+                            <div className="mvqr-promo-content">
+                                <div className="mvqr-promo-type">
+                                    {promo.type === 'offer_day' && t('promotions.types.offerDay')}
+                                    {promo.type === 'flash_sale' && t('promotions.types.flashSale')}
+                                    {promo.type === 'promotion' && t('promotions.types.promotion')}
                                 </div>
-                            )}
-                            <button className="mvqr-promo-cta">
-                                Ver Oferta
-                                <ArrowRight size={16} />
-                            </button>
+                                <h3>{promo.name}</h3>
+                                {promo.description && (
+                                    <p className="mvqr-promo-description">{promo.description}</p>
+                                )}
+                                <div className="mvqr-promo-price">
+                                    {promo.original_price && (
+                                        <span className="mvqr-promo-original">
+                                            {promo.original_price} Kz
+                                        </span>
+                                    )}
+                                    <span className="mvqr-promo-discount">
+                                        {promo.discounted_price} Kz
+                                    </span>
+                                    {promo.discount_percentage > 0 && (
+                                        <span className="mvqr-promo-percent">
+                                            -{promo.discount_percentage}%
+                                        </span>
+                                    )}
+                                </div>
+                                {promo.end_date && (
+                                    <div className="mvqr-promo-time">
+                                        <Clock size={14} />
+                                        <span>
+                                            {t('promotions.endsIn')}: {new Date(promo.end_date).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
         </section>
     );

@@ -8,12 +8,14 @@ import {
     Utensils,
     Eye,
     Clock,
-    Trash2,
     Plus,
-    Edit,
     RefreshCw,
+    Trash2,
     CheckCircle,
-    XCircle
+    XCircle,
+    AlertCircle,
+    RefreshCcw,
+    Building2
 } from "lucide-react";
 
 import { useAuth } from "../hooks/useAuth";
@@ -174,20 +176,63 @@ export default function RestaurantAdminDashboard() {
     // Renderizar Dashboard
     const renderDashboard = () => {
         // Mapear tipo de atividade para ícone
-        const getActivityIcon = (type) => {
-            switch (type) {
-                case 'category': return <FolderOpen size={16} />;
-                case 'product': return <Package size={16} />;
-                case 'qr': return <QrCode size={16} />;
-                case 'restaurant': return <Store size={16} />;
-                case 'audit':
-                case 'DELETE': return <Trash2 size={16} />;
-                case 'INSERT': return <Plus size={16} />;
-                case 'UPDATE': return <RefreshCw size={16} />;
-                default: return <Clock size={16} />;
-            }
-        };
+        // ============================================================
+// 🔥 ÍCONE POR AÇÃO (ÚNICO E LIMPO)
+// ============================================================
+const getActivityIcon = (activity) => {
+    let { action } = activity;   
 
+    // 🎯 ÍCONES ÚNICOS POR AÇÃO
+    const ACTION_ICONS = {
+        INSERT: {
+            icon: <Plus size={18} strokeWidth={2.5} />,
+            color: '#22c55e',
+            bg: 'rgba(34, 197, 94, 0.12)',
+        },
+        UPDATE: {
+            icon: <RefreshCw size={18} strokeWidth={2.5} />,
+            color: '#3b82f6',
+            bg: 'rgba(59, 130, 246, 0.12)',
+        },
+        DELETE: {
+            icon: <Trash2 size={18} strokeWidth={2.5} />,
+            color: '#ef4444',
+            bg: 'rgba(239, 68, 68, 0.12)',
+        },
+    };
+
+    // Fallback: se não houver action, tentar deduzir do texto
+    if (!action) {
+        if (activity.text?.startsWith('Criou') || activity.text?.startsWith('Adicionou')) {
+            action = 'INSERT';
+        } else if (activity.text?.startsWith('Eliminou')) {
+            action = 'DELETE';
+        } else {
+            action = 'UPDATE';
+        }
+    }
+
+    const config = ACTION_ICONS[action] || ACTION_ICONS.UPDATE;
+
+    return (
+        <div
+            style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '36px',
+                height: '36px',
+                borderRadius: '10px',
+                backgroundColor: config.bg,
+                color: config.color,
+                flexShrink: 0,
+                transition: 'all 0.2s',
+            }}
+        >
+            {config.icon}
+        </div>
+    );
+};
         return (
             <div className="restaurant-cockpit">
                 {/* Cabecalho do Dashboard */}
@@ -286,25 +331,36 @@ export default function RestaurantAdminDashboard() {
                                     Nenhuma actividade registada.
                                 </p>
                             ) : (
-                                activities.map((activity, index) => (
+                                   activities.map((activity, index) => (
                                     <div
                                         className="activity-item"
                                         key={`${activity.type}-${activity.date}-${index}`}
-                                    >
-                                        <div className="activity-icon">
-                                            {getActivityIcon(activity.type)}
-                                        </div>
+                                        style={{
+                                             display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '0.75rem',
+                                            padding: '0.75rem 1rem',
+                                        }}
+                                        >
+                                        {/* 🔥 ÍCONE DA AÇÃO */}
+                                        {getActivityIcon(activity)}
 
-                                        <div>
-                                            <strong>{activity.text}</strong>
-                                            <p>
-                                                {new Date(activity.date).toLocaleString("pt-PT", {
-                                                    day: "2-digit",
-                                                    month: "2-digit",
-                                                    year: "numeric",
-                                                    hour: "2-digit",
-                                                    minute: "2-digit"
-                                                })}
+                                        <div style={{ flex: 1 }}>
+                                            <strong style={{ fontSize: '0.9rem', display: 'block' }}>
+                                            {activity.text}
+                                            </strong>
+                                            <p style={{
+                                                     fontSize: '0.75rem',
+                                                     color: '#94a3b8',
+                                                     margin: '0.15rem 0 0 0',
+                                                       }}>
+                                               {new Date(activity.date).toLocaleString("pt-PT", {
+                                                     day: "2-digit",
+                                                     month: "2-digit",
+                                                     year: "numeric",
+                                                     hour: "2-digit",
+                                                     minute: "2-digit"
+                                                          })}
                                             </p>
                                         </div>
                                     </div>

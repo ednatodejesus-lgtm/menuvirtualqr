@@ -7,7 +7,7 @@ export default function Loading() {
         <span className="letter m">M</span>
         <span className="letter enu">enu</span>
         <span className="letter q">Q</span>
-        <span className="letter r">r</span>
+        <span className="letter r">R</span>
       </div>
     </div>
   );
