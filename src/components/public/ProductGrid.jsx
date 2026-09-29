@@ -4,11 +4,13 @@ import EmptyMenu from "./EmptyMenu";
 
 export default function ProductGrid({
   products = [],
+  onOrder,        //
+  restaurant,     // 
 }) {
   const { theme } = useTheme();
 
   if (!products.length) {
-    return <EmptyMenu />;
+    return <EmptyMenu restaurant={restaurant} />;
   }
 
   const variant =
@@ -22,9 +24,7 @@ export default function ProductGrid({
     theme?.layout?.featured?.variant ||
     "large_cards";
 
-
   let orderedProducts = [...products];
-
 
   /*
    * FEATURED FIRST
@@ -32,7 +32,6 @@ export default function ProductGrid({
    * Caso exista um campo `featured`
    * no produto, ele sobe para o topo.
    */
-
   if (
     variant === "featured_first" ||
     featured
@@ -43,7 +42,6 @@ export default function ProductGrid({
         Number(Boolean(a.featured))
     );
   }
-
 
   return (
     <section
@@ -67,7 +65,6 @@ export default function ProductGrid({
     >
       {orderedProducts.map(
         (product, index) => {
-
           const isFeatured =
             Boolean(product.featured) ||
             (
@@ -80,6 +77,8 @@ export default function ProductGrid({
               key={product.id}
               product={product}
               featured={isFeatured}
+              onOrder={onOrder}
+              restaurant={restaurant}
             />
           );
         }

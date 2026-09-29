@@ -8,6 +8,7 @@ import RestaurantHero from "../components/public/RestaurantHero";
 import Promo from "../components/public/Promo";
 import CategoryTabs from "../components/public/CategoryTabs";
 import ProductGrid from "../components/public/ProductGrid";
+import CheckoutModal from '../components/public/CheckoutModal';
 import SearchBar from "../components/public/SearchBar";
 import RestaurantFooter from "../components/public/RestaurantFooter";
 import LoadingScreen from "../components/public/LoadingScreen";
@@ -35,6 +36,8 @@ function PublicMenuContent() {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [showCheckout, setShowCheckout] = useState(false);
 
   useEffect(() => {
     async function loadMenu() {
@@ -92,6 +95,12 @@ function PublicMenuContent() {
     });
   }, [products, activeCategory, search]);
 
+
+  function handleOrder(product) {
+    setSelectedProduct(product);
+    setShowCheckout(true);
+  }
+
   // ============================================================
   // 1. LOADING
   // ============================================================
@@ -147,22 +156,16 @@ function PublicMenuContent() {
   const hasProducts = filteredProducts.length > 0;
   const isMenuEmpty = products.length === 0;
 
-  return (
+   return (
     <ThemeProvider theme={restaurant.theme}>
-      {/* 🔥 SELETOR DE IDIOMA */}
       <LanguageSwitcher />
 
       <main className="mvqr-public-menu">
-        {/* HERO SEMPRE VISÍVEL */}
         <RestaurantHero restaurant={restaurant} />
-         {/* PROMOÇÃO */}
-        <Promo restaurantId={restaurant.id} />
 
         <div className="menu-content">
-          {/* SEARCH BAR SEMPRE VISÍVEL */}
           <SearchBar value={search} onChange={setSearch} />
 
-          {/* CATEGORIAS */}
           {!isMenuEmpty && categories.length > 0 && (
             <CategoryTabs
               categories={categories}
@@ -171,20 +174,33 @@ function PublicMenuContent() {
             />
           )}
 
-          {/* CONTEÚDO */}
           {isMenuEmpty ? (
             <EmptyMenu restaurant={restaurant} />
           ) : hasProducts ? (
-            <ProductGrid products={filteredProducts} />
+            <ProductGrid 
+              products={filteredProducts} 
+              onOrder={handleOrder}   // 🔥 PASSAR HANDLER
+            />
           ) : (
             <div className="mvqr-no-results">
-              <p>{t("menu.noResults")}</p>
+              <p>{t('menu.noResults')}</p>
             </div>
           )}
         </div>
 
-        {/* FOOTER SEMPRE VISÍVEL */}
         <RestaurantFooter restaurant={restaurant} />
+
+        {/* 🔥 CHECKOUT MODAL */}
+        {showCheckout && selectedProduct && (
+          <CheckoutModal
+            product={selectedProduct}
+            restaurant={restaurant}
+            onClose={() => {
+              setShowCheckout(false);
+              setSelectedProduct(null);
+            }}
+          />
+        )}
       </main>
     </ThemeProvider>
   );

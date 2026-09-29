@@ -1033,3 +1033,62 @@ html[data-menu-variant="list"]
 .product-card .product-footer {
   border-top-color: var(--color-border, #3D2318);
 }
+
+/* ============================================================
+   PRODUCT CARD - BOTÃO PEDIR
+   ============================================================ */
+.product-order-btn {
+  margin-top: 0.75rem;
+  width: 100%;
+  padding: 0.65rem;
+  background: var(--color-primary, #8B4513);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  transition: all 0.2s ease;
+}
+
+.product-order-btn:hover {
+  background: var(--color-primary, #8B4513);
+  opacity: 0.9;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(139, 69, 19, 0.3);
+}
+
+.product-order-btn:active {
+  transform: translateY(0);
+}
+
+/* Ajustes por variante */
+.product-card-list .product-order-btn {
+  width: auto;
+  margin-top: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+}
+
+.product-card-immersive .product-order-btn {
+  background: var(--color-accent, #DAA520);
+  color: var(--color-text-inverse, #1A0F0A);
+}
+
+.product-card-showcase .product-order-btn {
+  background: var(--color-accent, #DAA520);
+  color: var(--color-text-inverse, #1A0F0A);
+}
+
+
+summaryRow {
+  display: 'flex',
+  justifyContent: 'space-between',
+  fontSize: '0.85rem',
+  color: '#166534',
+}
