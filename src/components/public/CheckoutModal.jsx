@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, ShoppingCart, Lock } from 'lucide-react';
+import { FaWhatsapp } from 'react-icons/fa';
 import { getCheckoutType, getBusinessConfig } from '../../config/businessConfig';
 import { buildWhatsAppMessage, sendToWhatsApp } from '../../services/checkoutService';
 
@@ -17,8 +18,10 @@ import PharmacyCheckout from './checkouts/PharmacyCheckout';
 import VehicleCheckout from './checkouts/VehicleCheckout';
 import GenericCheckout from './checkouts/GenericCheckout';
 
-export default function CheckoutModal({ product, restaurant, onClose }) {
-  const [checkoutData, setCheckoutData] = useState({});
+export default function CheckoutModal({ product, restaurant, tableFromURL, onClose }) {
+  const [checkoutData, setCheckoutData] = useState(
+  tableFromURL ? { table: tableFromURL } : {}
+);
 
   const checkoutType = getCheckoutType(restaurant?.business_type);
   const businessConfig = getBusinessConfig(restaurant?.business_type);
@@ -50,6 +53,7 @@ export default function CheckoutModal({ product, restaurant, onClose }) {
       data: checkoutData,
       onChange: setCheckoutData,
       businessConfig,
+      tableFromURL,
     };
     switch (checkoutType) {
       case 'food': return <FoodCheckout {...commonProps} />;
@@ -154,8 +158,8 @@ export default function CheckoutModal({ product, restaurant, onClose }) {
             fontWeight: '600', fontSize: '0.9rem', cursor: 'pointer',
             display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem',
           }}>
-            <Lock size={16} />
-            Confirmar
+            <FaWhatsapp size={16} />
+            Pedir pelo WhatsApp
           </button>
         </div>
       </div>

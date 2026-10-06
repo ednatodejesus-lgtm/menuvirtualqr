@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
 import { getRestaurantBySlug, getCategories, getProducts } from "../services/publicMenuService";
 import { ThemeProvider } from "../engine/ThemeProvider";
 import { LanguageProvider } from "../i18n/LanguageProvider";
@@ -27,6 +27,7 @@ import "../styles/public/footer.css";
 // ============================================================
 function PublicMenuContent() {
   const { slug } = useParams();
+  const [searchParams] = useSearchParams()
   const { t } = useLanguage();
 
   const [restaurant, setRestaurant] = useState(null);
@@ -38,6 +39,7 @@ function PublicMenuContent() {
   const [error, setError] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showCheckout, setShowCheckout] = useState(false);
+  const tableFromURL = searchParams.get("mesa");
 
   useEffect(() => {
     async function loadMenu() {
@@ -195,6 +197,7 @@ function PublicMenuContent() {
           <CheckoutModal
             product={selectedProduct}
             restaurant={restaurant}
+            tableFromURL={tableFromURL}
             onClose={() => {
               setShowCheckout(false);
               setSelectedProduct(null);

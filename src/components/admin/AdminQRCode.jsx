@@ -433,17 +433,7 @@ export default function AdminQRCode() {
           <FilePlus size={18} /> Gerar PDF {pdfLabel}
         </button>
 
-        <InfoBox>
-          <h4 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-            <Sparkles size={18} /> Dicas do QR Code
-          </h4>
-          <ul style={{ paddingLeft: "1.5rem", margin: "0.5rem 0" }}>
-            <li>Imprima e coloque nas mesas do restaurante</li>
-            <li>Partilhe nas redes sociais</li>
-            <li>Os clientes escaneiam para ver o menu</li>
-            <li>As alteracoes do menu aparecem automaticamente em tempo real</li>
-          </ul>
-        </InfoBox>
+        
       </Card>
 
       {/* ============================================================
@@ -676,8 +666,21 @@ export default function AdminQRCode() {
               ))}
             </div>
           )}
-        </Card>
+        </Card> 
       )}
+      <Card>
+        <InfoBox>
+          <h4 style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <Sparkles size={18} /> Dicas do QR Code
+          </h4>
+          <ul style={{ paddingLeft: "1.5rem", margin: "0.5rem 0" }}>
+            <li>Imprima e coloque nas mesas do restaurante</li>
+            <li>Partilhe nas redes sociais</li>
+            <li>Os clientes escaneiam para ver o menu</li>
+            <li>As alteracoes do menu aparecem automaticamente em tempo real</li>
+          </ul>
+        </InfoBox>
+      </Card>
     </>
   );
 }

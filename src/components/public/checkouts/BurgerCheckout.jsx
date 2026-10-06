@@ -1,6 +1,6 @@
 import { Minus, Plus } from 'lucide-react';
 
-export default function BurgerCheckout({ data, onChange }) {
+export default function BurgerCheckout({ data, onChange, tableFromURL }) {
   const saucesList = ['Maionese', 'Ketchup', 'Mostarda', 'Barbecue'];
   const extrasList = [
     { id: 'chips', label: 'Regular Chips' },
@@ -12,6 +12,8 @@ export default function BurgerCheckout({ data, onChange }) {
   const quantity = data.quantity || 1;
   const selectedSauces = data.sauces || [];
   const selectedExtras = data.extras || [];
+
+   const tableFromScanner = !!tableFromURL;
 
   function updateQuantity(delta) {
     onChange({ ...data, quantity: Math.max(1, quantity + delta) });
@@ -71,16 +73,36 @@ export default function BurgerCheckout({ data, onChange }) {
           onChange={(e) => onChange({ ...data, observations: e.target.value })}
           placeholder="Ex: Sem picante..." rows={3} style={styles.textarea} />
       </div>
+      {/* 🔥 MESA */}
       <div>
-        <label style={styles.label}>Mesa (opcional)</label>
-        <input type="number" value={data.table || ''}
-          onChange={(e) => onChange({ ...data, table: e.target.value })}
-          placeholder="Número da mesa" style={styles.input} />
+        <label style={styles.label}>
+          Mesa
+          {tableFromScanner && (
+            <span style={styles.badge}>
+              <Lock size={12} />
+              Via QR Code
+            </span>
+          )}
+        </label>
+
+        {tableFromScanner ? (
+          <div style={styles.lockedInput}>
+            <span>Mesa {data.table}</span>
+            <Lock size={14} color="#8B4513" />
+          </div>
+        ) : (
+          <input
+            type="number"
+            value={data.table || ''}
+            onChange={(e) => onChange({ ...data, table: e.target.value })}
+            placeholder="Número da mesa (opcional)"
+            style={styles.input}
+          />
+        )}
       </div>
     </div>
   );
 }
-
 const styles = {
   label: { display: 'block', fontSize: '0.85rem', fontWeight: '600', color: '#334155', marginBottom: '0.5rem' },
   quantityControl: { display: 'flex', alignItems: 'center', gap: '0.75rem', background: '#f8fafc', padding: '0.5rem', borderRadius: '10px', border: '1px solid #e2e8f0', width: 'fit-content' },
